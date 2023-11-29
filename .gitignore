@@ -1,0 +1,11 @@
+.idea
+db.sqlite3
+.DS_Store
+.idea/
+.vscode/
+.vs/
+.project
+*.swp
+.jshintrc
+node_modules
+npm-debug.log
