@@ -1,8 +1,8 @@
 from develop.core.Route import Route
 
+
 class CustomRoute(Route):
     def set_response(self, response, status=None):
-        print(response)
         if 'result' in response:
             super().set_response(response['result'], status)
             response['result'] = super().get_response()
