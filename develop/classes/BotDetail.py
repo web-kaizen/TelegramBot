@@ -1,4 +1,4 @@
-from develop.routes import Route
+from develop.core.Route import Route
 from rest_framework.views import APIView
 
 
