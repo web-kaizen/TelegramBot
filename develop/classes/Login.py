@@ -1,8 +1,8 @@
-from develop.core.Route import Route
 from rest_framework.views import APIView
+from .CustomRoute import CustomRoute
 
 
-class Login(Route, APIView):
+class Login(CustomRoute, APIView):
 
     def get_method(self):
         return "POST"

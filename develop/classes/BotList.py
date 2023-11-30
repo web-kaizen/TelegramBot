@@ -1,8 +1,8 @@
-from develop.core.Route import Route
+from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
-class BotList(Route, APIView):
+class BotList(CustomRoute, APIView):
 
     def get_method(self):
         return "GET"

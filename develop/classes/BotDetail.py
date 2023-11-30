@@ -1,8 +1,8 @@
-from develop.core.Route import Route
+from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
-class BotDetail(Route, APIView):
+class BotDetail(CustomRoute, APIView):
     def __init__(self):
         super().__init__()
         self.id = ""
