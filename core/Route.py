@@ -38,3 +38,8 @@ class Route(Methods):
         )
         return response.json(), response.status_code
 
+    def on_success(self, response):
+        return response
+
+    def on_error(self, response):
+        return response

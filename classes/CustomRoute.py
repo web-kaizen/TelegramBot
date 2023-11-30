@@ -1,4 +1,4 @@
-from develop.core.Route import Route
+from core.Route import Route
 
 
 class CustomRoute(Route):

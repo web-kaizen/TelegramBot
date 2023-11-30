@@ -32,9 +32,3 @@ class Methods:
         response = self.send()
         self.set_response(response[0], response[1])
         return Response(status=response[1], data=self.get_response())
-
-    def on_success(self, response):
-        return response
-
-    def on_error(self, response):
-        return response
