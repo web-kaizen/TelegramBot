@@ -1,8 +1,7 @@
+import os
+
 import requests
 from .Methods import Methods
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
 
 class Route(Methods):
@@ -10,7 +9,10 @@ class Route(Methods):
         self.parameters = []
         self.response = []
         self.APP_ID = os.getenv("APP_ID")
+        print(True)
         self.BASE_URL = os.getenv("BASE_URL")
+        print(False)
+
 
     def set_parameters(self, data):
         self.parameters = data
