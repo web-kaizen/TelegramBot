@@ -2,6 +2,11 @@ from core.Route import Route
 
 
 class CustomRoute(Route):
+
+    def get(self, request):
+        self.set_headers(request.headers)
+        return super().get(request)
+
     def set_response(self, response, status=None):
         if 'result' in response:
             super().set_response(response['result'], status)

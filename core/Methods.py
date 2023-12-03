@@ -7,7 +7,7 @@ class Methods:
         self.set_parameters(request.query_params.dict())
         response = self.send()
         self.set_response(response[0], response[1])
-        return Response(status=response[1], data=self.get_response())
+        return Response(status=response[1], data=self.get_response(), headers=self.get_headers())
 
     def post(self, request):
         self.set_parameters(request.data)
