@@ -13,7 +13,15 @@ class Route(Methods):
         self.__APP_ID = APP_ID
         self.__BASE_URL = BASE_URL
 
+    ''' HEADERS '''
 
+    def set_headers(self, headers: dict) -> None:
+        self.__headers = headers
+
+    def get_headers(self):
+        return self.__headers
+
+    """-----------"""
 
     def set_parameters(self, data):
         self.__parameters = data
