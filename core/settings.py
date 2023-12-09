@@ -10,11 +10,34 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 from dotenv import load_dotenv
+
+import environ
+
 load_dotenv()
 
+env = environ.Env(
+    DEBUG=bool,
+    SECRET_KEY=str,
+
+    # Yadro
+    APP_ID=str,
+    THIRD_PARTY_APP_URL=str,
+
+    # Redis
+    REDIS_HOST=str,
+    REDIS_PORT=int,
+    CACHE_DEFAULT_TTL=int,
+
+    # Postgres
+    POSTGRES_DB=str,
+    POSTGRES_USER=str,
+    POSTGRES_PASSWORD=str,
+    POSTGRES_DB_HOST=str,
+    POSTGRES_DB_PORT=int,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +47,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j021i7o-)w$0jb7@vls7^$*7@*gl0pr!h4i3^eds$v$500t25s'
+SECRET_KEY = env('SECRET_KEY')
+# SECRET_KEY = 'django-insecure-j021i7o-)w$0jb7@vls7^$*7@*gl0pr!h4i3^eds$v$500t25s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -42,7 +66,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
-    # "corsheaders"
+    # "corsheaders",
+    'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +109,28 @@ application = get_wsgi_application()
 WSGI_APPLICATION = 'core.settings.application'
 
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
+# Yadro
+APP_ID = env('APP_ID')
+THIRD_PARTY_APP_URL = env('THIRD_PARTY_APP_URL')
+
+# Redis
+REDIS_HOST = env('REDIS_HOST')
+REDIS_PORT = env('REDIS_PORT')
+CACHE_DEFAULT_TTL = env('CACHE_DEFAULT_TTL')
+
+# Cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
+    }
+}
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -116,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -143,6 +191,3 @@ CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-"""OTHER SERVICES"""
-BASE_URL = os.getenv("BASE_URL")
-APP_ID = os.getenv("APP_ID")
