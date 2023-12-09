@@ -49,7 +49,7 @@ class Route(Methods):
             headers=self.get_headers()
         )
 
-        self.set_headers(response.headers)
+        self.set_headers(dict(response.headers))
 
         return response.json(), response.status_code
 

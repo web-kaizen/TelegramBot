@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.conf import settings
-from .LogModel import Log
+from logger.LogModel import Log
 from typing import Union
 
 

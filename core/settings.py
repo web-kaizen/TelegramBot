@@ -22,7 +22,7 @@ env = environ.Env(
     DEBUG=bool,
     SECRET_KEY=str,
 
-    # Yadro
+    # Core
     APP_ID=str,
     THIRD_PARTY_APP_URL=str,
 
@@ -32,9 +32,9 @@ env = environ.Env(
     CACHE_DEFAULT_TTL=int,
 
     # Postgres
-    POSTGRES_DB=str,
-    POSTGRES_USER=str,
-    POSTGRES_PASSWORD=str,
+    POSTGRES_DB_NAME=str,
+    POSTGRES_DB_USER=str,
+    POSTGRES_DB_PASSWORD=str,
     POSTGRES_DB_HOST=str,
     POSTGRES_DB_PORT=int,
 )
@@ -66,16 +66,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
-    # "corsheaders",
     'rest_framework_swagger',
     'drf_yasg',
-    "logger",
-    "classes"
+    "Logger.apps.LoggerConfig",
+    "classes",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # "corsheaders.middleware.CorsMiddleware"
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -102,13 +100,18 @@ TEMPLATES = [
     },
 ]
 
-""" WSGI SETTINGS DJANGO """
-from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-application = get_wsgi_application()
-
-WSGI_APPLICATION = 'core.settings.application'
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("POSTGRES_DB_NAME"),
+        'USER': env("POSTGRES_DB_USER"),
+        'PASSWORD': env("POSTGRES_DB_PASSWORD"),
+        'HOST': env("POSTGRES_DB_HOST"),
+        'PORT': env("POSTGRES_DB_PORT"),
+    }
+}
 
 
 INTERNAL_IPS = [
@@ -120,17 +123,6 @@ INTERNAL_IPS = [
 APP_ID = env('APP_ID')
 THIRD_PARTY_APP_URL = env('THIRD_PARTY_APP_URL')
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
 
 # Redis
 REDIS_HOST = env('REDIS_HOST')
@@ -144,6 +136,8 @@ CACHES = {
         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
     }
 }
+
+
 
 
 
@@ -196,3 +190,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+""" WSGI SETTINGS DJANGO """
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+application = get_wsgi_application()
+
+WSGI_APPLICATION = 'core.settings.application'
