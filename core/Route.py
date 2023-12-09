@@ -2,7 +2,7 @@ import os
 
 import requests
 from .Methods import Methods
-from .settings import APP_ID, BASE_URL
+from .settings import APP_ID, THIRD_PARTY_APP_URL
 
 
 class Route(Methods):
@@ -11,7 +11,7 @@ class Route(Methods):
         self.__response = []
         self.__headers = []
         self.__APP_ID = APP_ID
-        self.__BASE_URL = BASE_URL
+        self.__BASE_URL = THIRD_PARTY_APP_URL
 
     ''' HEADERS '''
 
@@ -50,7 +50,6 @@ class Route(Methods):
         )
 
         self.set_headers(response.headers)
-        print(self.get_headers())
 
         return response.json(), response.status_code
 

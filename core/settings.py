@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     # "corsheaders",
     'rest_framework_swagger',
     'drf_yasg',
+    "logger",
+    "classes"
 ]
 
 MIDDLEWARE = [
@@ -118,6 +120,18 @@ INTERNAL_IPS = [
 APP_ID = env('APP_ID')
 THIRD_PARTY_APP_URL = env('THIRD_PARTY_APP_URL')
 
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+
 # Redis
 REDIS_HOST = env('REDIS_HOST')
 REDIS_PORT = env('REDIS_PORT')
@@ -131,15 +145,6 @@ CACHES = {
     }
 }
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
