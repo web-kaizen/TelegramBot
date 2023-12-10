@@ -21,6 +21,7 @@ load_dotenv()
 env = environ.Env(
     DEBUG=bool,
     SECRET_KEY=str,
+    NEED_LOGGER=bool,
 
     # Core
     APP_ID=str,
@@ -68,7 +69,7 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework_swagger',
     'drf_yasg',
-    "Logger.apps.LoggerConfig",
+    "logger.apps.LoggerConfig",
     "classes",
 ]
 
@@ -112,7 +113,8 @@ DATABASES = {
         'PORT': env("POSTGRES_DB_PORT"),
     }
 }
-
+# Logger
+NEED_LOGGER = env("NEED_LOGGER")
 
 INTERNAL_IPS = [
     '127.0.0.1',

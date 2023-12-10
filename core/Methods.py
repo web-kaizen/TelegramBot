@@ -3,31 +3,25 @@ from rest_framework.response import Response
 
 class Methods:
 
-    def get(self, request):
+    def request_setter(self, request):
+        self.set_url(request.build_absolute_uri())
+        self.set_method(request.method)
+        self.set_request(request.data)
         self.set_headers(dict(request.headers))
-        self.set_parameters(request.query_params.dict())
+        if request.method == "GET":
+            self.set_parameters(request.query_params.dict())
+        else:
+            self.set_parameters(request.data)
 
-        options = {
-            "proxy_method": self.get_patch(),
-            "proxy_url": f"{self.__BASE_URL}{self.__APP_ID}",
-            "proxy_request_headers": self.get_headers(),
-            "proxy_request_body": self.get_response(),
-            "proxy_response_headers": self.get_headers(),
-            "proxy_response_body": self.get_response(),
-            "proxy_response_status_code": self.get_response()
-        }
-
-        response = self.send()
-        self.set_response(response[0], response[1])
-
-        return Response(status=response[1], data=self.get_response())
+    def get(self, request):
+        self.request_setter(request)
+        response, status_code = self.send()
+        return Response(status=status_code, data=response)
 
     def post(self, request):
-        self.set_headers(dict(request.headers))
-        self.set_parameters(request.data)
-        response = self.send()
-        self.set_response(response[0], response[1])
-        return Response(status=response[1], data=self.get_response())
+        self.request_setter(request)
+        response, status_code = self.send()
+        return Response(status=status_code, data=response)
 
     def put(self, request):
         self.set_headers(dict(request.headers))

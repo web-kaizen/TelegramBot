@@ -1,46 +1,25 @@
 import os
-
 import requests
-from .Methods import Methods
+
+from logger.Logger import Logger
+from .Accessor import Accessor
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 
 
-class Route(Methods):
+class Route(Accessor):
     def __init__(self):
-        self.__parameters = []
-        self.__response = []
-        self.__headers = []
         self.__APP_ID = APP_ID
         self.__BASE_URL = THIRD_PARTY_APP_URL
 
-    ''' HEADERS '''
-
-    def set_headers(self, headers: dict) -> None:
-        self.__headers = headers
-
-    def get_headers(self):
-        return self.__headers
-
-    """-----------"""
-
-    def set_parameters(self, data):
-        self.__parameters = data
-
-    def get_parameters(self):
-        return self.__parameters
-
-    def set_response(self, response, status=None):
-        if status is not None:
-            if 200 <= status < 300:
-                response = self.on_success(response)
-            if 400 <= status <= 500:
-                response = self.on_error(response)
-        self.__response = response
-
-    def get_response(self):
-        return self.__response
-
     def send(self):
+        options_proxy = {
+            "proxy_method": self.get_method(),
+            "proxy_url": self.get_url(),
+            "proxy_request_headers": self.get_headers(),
+            "proxy_request_body": self.get_request(),
+            "proxy_response_headers": self.get_headers(),
+            "proxy_response_body": self.get_request(),
+        }
         url = f'{self.__BASE_URL}{self.__APP_ID}'
         response = requests.request(
             method=self.get_method(),
@@ -49,12 +28,23 @@ class Route(Methods):
             headers=self.get_headers()
         )
 
-        self.set_headers(dict(response.headers))
+        options_core = {
+            "core_method": self.get_method(),
+            "core_url": f"{url}{self.get_patch()}",
+            "core_request_headers": self.get_headers(),
+            "core_request_body": self.get_request(),
+            "core_response_headers": dict(response.headers),
+            "core_response_body": response.json(),
+            "core_response_status_code": response.status_code
+        }
 
-        return response.json(), response.status_code
+        logger = Logger(options=options_proxy | options_core)
+        logger.write()
+        print(True)
 
-    def on_success(self, response):
-        return response
+        self.set_response(response.json(), response.status_code)
 
-    def on_error(self, response):
-        return response
+        return self.get_response(), response.status_code
+
+
+
