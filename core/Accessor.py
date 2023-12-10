@@ -23,6 +23,14 @@ class Accessor(Methods):
     def get_method(self) -> str:
         return self.__method
 
+    def allowed_client_headers(self, headers: dict) -> dict:
+        allowed_headers = ["Authorization", "Content-Type"]
+        headers_res = {}
+        for key, value in headers.items():
+            if key in allowed_headers:
+                headers_res[key] = value
+        return headers_res
+
     def set_headers(self, headers: dict) -> None:
         self.__headers = headers
 

@@ -15,13 +15,13 @@ class Methods:
 
     def get(self, request):
         self.request_setter(request)
-        response, status_code = self.send()
-        return Response(status=status_code, data=response)
+        response, headers, status_code = self.send()
+        return Response(status=status_code, data=response, headers=headers)
 
     def post(self, request):
         self.request_setter(request)
-        response, status_code = self.send()
-        return Response(status=status_code, data=response)
+        response, headers, status_code = self.send()
+        return Response(status=status_code, data=response, headers=headers)
 
     def put(self, request):
         self.set_headers(dict(request.headers))

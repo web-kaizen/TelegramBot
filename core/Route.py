@@ -20,12 +20,13 @@ class Route(Accessor):
             "proxy_response_headers": self.get_headers(),
             "proxy_response_body": self.get_request(),
         }
+
         url = f'{self.__BASE_URL}{self.__APP_ID}'
         response = requests.request(
             method=self.get_method(),
             url=f"{url}{self.get_patch()}",
             json=self.get_parameters(),
-            headers=self.get_headers()
+            headers=self.allowed_client_headers(self.get_headers())
         )
 
         options_core = {
@@ -40,11 +41,11 @@ class Route(Accessor):
 
         logger = Logger(options=options_proxy | options_core)
         logger.write()
-        print(True)
 
-        self.set_response(response.json(), response.status_code)
-
-        return self.get_response(), response.status_code
-
+        # self.set_response(response.json(), response.status_code)
+        # return self.get_response(), response.status_code
+        response.headers.pop('Connection')
+        response.headers.pop('Keep-Alive')
+        return response.json(), response.headers, response.status_code
 
 
