@@ -17,10 +17,10 @@ class Accessor(Methods):
     def get_url(self) -> str:
         return self.__url
 
-    def set_method(self, method: str) -> None:
+    def set_proxy_method(self, method: str) -> None:
         self.__method = method
 
-    def get_method(self) -> str:
+    def get_proxy_method(self) -> str:
         return self.__method
 
     def allowed_client_headers(self, headers: dict) -> dict:
@@ -49,7 +49,7 @@ class Accessor(Methods):
     def get_request(self) -> dict:
         return self.__request
 
-    def set_response(self, response, status=None) -> None:
+    def set_response(self, response: dict, status=None) -> None:
         if status is not None:
             if 200 <= status < 300:
                 response = self.on_success(response)
@@ -60,9 +60,9 @@ class Accessor(Methods):
     def get_response(self) -> dict:
         return self.__response
 
-    def on_success(self, response):
+    def on_success(self, response: dict) -> dict:
         return response
 
-    def on_error(self, response):
+    def on_error(self, response: dict) -> dict:
         return response
 

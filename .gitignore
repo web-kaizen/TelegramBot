@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 __init__/
 logger/migrations/
-classes/
 
 # C extensions
 *.so

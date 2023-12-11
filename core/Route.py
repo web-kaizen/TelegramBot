@@ -13,15 +13,15 @@ class Route(Accessor):
         self.__BASE_URL = THIRD_PARTY_APP_URL
 
     def check_response(self, response: Response) -> dict | None:
-        """Проверка response не содержание body используя headers["Content-Type"] (e.g. login)"""
-        if 'Content-Type' in response.headers.keys():
+        """Проверка response не содержание body используя headers["Content-Type"] (e.g. logout)"""
+        if response.status_code != 204:
             return response.json()
         else:
             return None
 
-    def send(self):
+    def send(self) -> tuple:
         options_proxy = {
-            "proxy_method": self.get_method(),
+            "proxy_method": self.get_proxy_method(),
             "proxy_url": self.get_url(),
             "proxy_request_headers": self.get_headers(),
             "proxy_request_body": self.get_request(),
@@ -48,6 +48,7 @@ class Route(Accessor):
             "core_response_body": response_body,
             "core_response_status_code": response.status_code
         }
+
 
         logger = Logger(options=options_proxy | options_core)
         logger.write()

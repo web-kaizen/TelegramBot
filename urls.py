@@ -21,10 +21,11 @@ from classes.BotDetail import BotDetail
 from classes.Register import Register
 from classes.Login import Login
 from classes.Logout import Logout
-
 from classes.EmailVerificationCheck import EmailVerificationCheck
 from classes.EmailVerificationResend import EmailVerificationResend
 from classes.EmailVerificationVerify import EmailVerificationVerify
+from classes.DialogueList import DialogueList
+from classes.DialogueDetail import DialogueDetail
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -35,5 +36,7 @@ urlpatterns = [
     path("api/v0/users/email-verification/resend", EmailVerificationResend().as_view()),
     path("api/v0/users/email-verification/verify", EmailVerificationVerify().as_view()),
     path("api/v0/bots", BotList().as_view()),
-    path("api/v0/bots/<int:id>", BotDetail().as_view()),
+    path("api/v0/bots/<int:bot_id>", BotDetail().as_view()),
+    path("api/v0/dialogues", DialogueList.as_view()),
+    path("api/v0/dialogues/<int:dialogue_id>", DialogueDetail.as_view())
 ]

@@ -1,12 +1,12 @@
+from requests import Request
 from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
-class EmailVerificationResend(CustomRoute, APIView):
+class DialogueList(CustomRoute, APIView):
 
     def get_method(self) -> str:
-        return "POST"
+        return self.request.method
 
     def get_patch(self) -> str:
-        return f"/users/email-verification/resend"
-
+        return "/dialogues"
