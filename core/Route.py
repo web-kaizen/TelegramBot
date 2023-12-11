@@ -1,5 +1,6 @@
 import os
 import requests
+from requests import Response
 
 from logger.Logger import Logger
 from .Accessor import Accessor
@@ -10,6 +11,13 @@ class Route(Accessor):
     def __init__(self):
         self.__APP_ID = APP_ID
         self.__BASE_URL = THIRD_PARTY_APP_URL
+
+    def check_response(self, response: Response) -> dict | None:
+        """Проверка response не содержание body используя headers["Content-Type"] (e.g. login)"""
+        if 'Content-Type' in response.headers.keys():
+            return response.json()
+        else:
+            return None
 
     def send(self):
         options_proxy = {
@@ -29,23 +37,25 @@ class Route(Accessor):
             headers=self.allowed_client_headers(self.get_headers())
         )
 
+        response_body = self.check_response(response)
+
         options_core = {
             "core_method": self.get_method(),
             "core_url": f"{url}{self.get_patch()}",
             "core_request_headers": self.get_headers(),
             "core_request_body": self.get_request(),
             "core_response_headers": dict(response.headers),
-            "core_response_body": response.json(),
+            "core_response_body": response_body,
             "core_response_status_code": response.status_code
         }
 
         logger = Logger(options=options_proxy | options_core)
         logger.write()
 
-        # self.set_response(response.json(), response.status_code)
-        # return self.get_response(), response.status_code
         response.headers.pop('Connection')
         response.headers.pop('Keep-Alive')
-        return response.json(), response.headers, response.status_code
+        return response_body, response.headers, response.status_code
+
+
 
 
