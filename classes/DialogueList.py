@@ -8,5 +8,5 @@ class DialogueList(CustomRoute, APIView):
     def get_method(self) -> str:
         return self.request.method
 
-    def get_patch(self) -> str:
+    def get_path(self) -> str:
         return "/dialogues"

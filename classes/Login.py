@@ -7,5 +7,5 @@ class Login(CustomRoute, APIView):
     def get_method(self) -> str:
         return "POST"
 
-    def get_patch(self) -> str:
+    def get_path(self) -> str:
         return "/users/login"

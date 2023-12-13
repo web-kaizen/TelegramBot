@@ -1,11 +1,12 @@
 from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
+from core.Route import Route
 
 
-class BotList(CustomRoute, APIView):
+class BotList(Route, APIView):
 
     def get_method(self) -> str:
         return "GET"
 
-    def get_patch(self) -> str:
+    def get_path(self) -> str:
         return "/bots"

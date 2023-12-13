@@ -18,5 +18,5 @@ class BotDetail(CustomRoute, APIView):
     def get_method(self) -> str:
         return "GET"
 
-    def get_patch(self) -> str:
+    def get_path(self) -> str:
         return f"/bots/{self.bot_id}"

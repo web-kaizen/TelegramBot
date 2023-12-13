@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -69,7 +71,7 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework_swagger',
     'drf_yasg',
-    "logger.apps.LoggerConfig",
+    "core",
     "classes",
 ]
 
@@ -82,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'urls'
 
@@ -190,6 +193,14 @@ CORS_ORIGIN_ALLOW_ALL = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+"""ASGI SETTINGS DJANGO"""
+import os
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+application = get_asgi_application()
 
 
 """ WSGI SETTINGS DJANGO """

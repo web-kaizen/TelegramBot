@@ -7,6 +7,6 @@ class EmailVerificationResend(CustomRoute, APIView):
     def get_method(self) -> str:
         return "POST"
 
-    def get_patch(self) -> str:
+    def get_path(self) -> str:
         return f"/users/email-verification/resend"
 
