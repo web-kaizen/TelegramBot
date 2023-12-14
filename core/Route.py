@@ -2,7 +2,7 @@ import requests
 from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 from .Methods import Methods
-
+import json
 
 class Route(Methods):
     def __init__(self):
@@ -14,6 +14,7 @@ class Route(Methods):
         self.__headers: dict = {}
         self.__url: str = None
         self.__status_code: int = None
+        self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length")
         self._logger = Logger()
 
     def request_setter(self, request):
@@ -71,42 +72,27 @@ class Route(Methods):
     def on_error(self, response: dict) -> dict:
         return response
 
-    def allowed_client_headers(self, headers: dict) -> dict:
-        allowed_headers = ["Authorization", "Content-Type"]
-        headers_res = {}
-        for key, value in headers.items():
-            if key in allowed_headers:
-                headers_res[key] = value
-        return headers_res
-
-    # def check_response(self, response: Response) -> dict | None:
-    #     """Проверка response не содержание body используя headers["Content-Type"] (e.g. logout)"""
-    #     if response.status_code != 204:
-    #         return response.json()
-    #     else:
-    #         return None
-
     def send(self) -> tuple:
-        print(self.get_method())
-        print(self.get_url())
         response = requests.request(
             method=self.get_method(),
             url=self.get_url(),
-            # headers=self.allowed_client_headers(self.get_headers()),
-            json=self.get_parameters(),
+            data=self.get_parameters(),
+            headers=self.get_headers()
         )
-        print(response)
-
-        # response_body = self.check_response(response)
-
-        # response.headers.pop('Connection')
-        # response.headers.pop('Keep-Alive')
+        filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
+        response.headers = filtered_headers
+        # print(response.json())
         self._logger.set_core_response_body(response.json())
         self._logger.set_core_response_status_code(response.status_code)
 
         self.set_response(response.json(), response.status_code)
 
+        # response_string = json.dumps(response.headers, ensure_ascii=False)
+        # content_length = len(response_string.encode('utf-8'))
+        # response.headers["Content-Length"] = content_length
+        # print(response.headers["Content-Length"])
+
         self._logger.write()
 
-        return self.get_response(), {}, response.status_code
+        return self.get_response(), response.headers, response.status_code
 
