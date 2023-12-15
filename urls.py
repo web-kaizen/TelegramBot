@@ -16,16 +16,16 @@ Including another URLconf
 """
 from django.urls import path, include
 from django.contrib import admin
-from classes.BotList import BotList
-from classes.BotDetail import BotDetail
-from classes.Register import Register
-from classes.Login import Login
-from classes.Logout import Logout
-from classes.EmailVerificationCheck import EmailVerificationCheck
-from classes.EmailVerificationResend import EmailVerificationResend
-from classes.EmailVerificationVerify import EmailVerificationVerify
-from classes.DialogueList import DialogueList
-from classes.DialogueDetail import DialogueDetail
+from services.BotList import BotList
+from services.BotDetail import BotDetail
+from services.Register import Register
+from services.Login import Login
+from services.Logout import Logout
+from services.EmailVerificationCheck import EmailVerificationCheck
+from services.EmailVerificationResend import EmailVerificationResend
+from services.EmailVerificationVerify import EmailVerificationVerify
+from services.DialogueList import DialogueList
+from services.DialogueDetail import DialogueDetail
 
 urlpatterns = [
     path("admin/", admin.site.urls),
