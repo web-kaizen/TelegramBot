@@ -1,11 +1,13 @@
 from typing import Any
 from django.http import HttpResponse
 from requests import Request
+
+from core.Route import Route
 from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
-class DialogueDetail(CustomRoute, APIView):
+class DialogueDetail(Route, APIView):
 
     def __init__(self):
         super().__init__()

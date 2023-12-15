@@ -1,19 +1,19 @@
 from typing import Any
-
+from django.http import HttpResponse
 from requests import Response, Request
-
+from core.Route import Route
 from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
-class BotDetail(CustomRoute, APIView):
+class BotDetail(Route, APIView):
     def __init__(self):
         super().__init__()
         self.bot_id: Any = None
 
-    def get(self, request: Request, bot_id=None) -> Response:
-        self.bot_id = bot_id
-        return super().get(request)
+    def dispatch(self, request: Request, **kwargs) -> HttpResponse:
+        self.bot_id = kwargs.get("bot_id")
+        return super().dispatch(request)
 
     def get_method(self) -> str:
         return "GET"

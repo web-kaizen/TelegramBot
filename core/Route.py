@@ -4,6 +4,7 @@ from .settings import APP_ID, THIRD_PARTY_APP_URL
 from .Methods import Methods
 import json
 
+
 class Route(Methods):
     def __init__(self):
         self._APP_ID = APP_ID
@@ -76,21 +77,16 @@ class Route(Methods):
         response = requests.request(
             method=self.get_method(),
             url=self.get_url(),
-            data=self.get_parameters(),
+            json=self.get_parameters(),
             headers=self.get_headers()
         )
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
         response.headers = filtered_headers
-        # print(response.json())
+
         self._logger.set_core_response_body(response.json())
         self._logger.set_core_response_status_code(response.status_code)
 
         self.set_response(response.json(), response.status_code)
-
-        # response_string = json.dumps(response.headers, ensure_ascii=False)
-        # content_length = len(response_string.encode('utf-8'))
-        # response.headers["Content-Length"] = content_length
-        # print(response.headers["Content-Length"])
 
         self._logger.write()
 
