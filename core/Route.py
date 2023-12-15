@@ -1,4 +1,6 @@
 import requests
+from requests import Response
+
 from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 from .Methods import Methods
@@ -40,6 +42,9 @@ class Route(Methods):
         return self.__url
 
     def set_headers(self, headers: dict) -> None:
+        if "Host" in headers.keys():
+            headers.pop("Host")
+        headers["Content-Type"] = "application/json"
         self.__headers = headers
         self._logger.set_core_request_headers(headers)
 
@@ -53,11 +58,11 @@ class Route(Methods):
     def get_parameters(self) -> dict:
         return self.__parameters
 
-    def set_response(self, response: dict, status=None) -> None:
+    def set_response(self, response: dict | None, status=None) -> None:
         self._logger.set_proxy_response_body(response)
         self._logger.set_proxy_response_status_code(status)
 
-        if status is not None:
+        if response is not None and status is not None:
             if 200 <= status < 300:
                 response = self.on_success(response)
             if 400 <= status <= 500:
@@ -83,10 +88,15 @@ class Route(Methods):
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
         response.headers = filtered_headers
 
-        self._logger.set_core_response_body(response.json())
+        if response.status_code != 204:
+            response_body = response.json()
+        else:
+            response_body = None
+
+        self._logger.set_core_response_body(response_body)
         self._logger.set_core_response_status_code(response.status_code)
 
-        self.set_response(response.json(), response.status_code)
+        self.set_response(response_body, response.status_code)
 
         self._logger.write()
 

@@ -1,4 +1,3 @@
-from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 from core.Route import Route
 

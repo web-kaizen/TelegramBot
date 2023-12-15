@@ -1,8 +1,8 @@
-from .CustomRoute import CustomRoute
+from core.Route import Route
 from rest_framework.views import APIView
 
 
-class EmailVerificationCheck(CustomRoute, APIView):
+class EmailVerificationCheck(Route, APIView):
 
     def get_method(self) -> str:
         return "GET"

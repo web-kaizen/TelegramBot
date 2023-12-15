@@ -2,7 +2,6 @@ from typing import Any
 from django.http import HttpResponse
 from requests import Response, Request
 from core.Route import Route
-from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 

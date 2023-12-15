@@ -1,7 +1,5 @@
 from requests import Request
-
 from core.Route import Route
-from .CustomRoute import CustomRoute
 from rest_framework.views import APIView
 
 
