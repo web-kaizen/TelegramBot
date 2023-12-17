@@ -24,7 +24,10 @@ class Route(Methods):
         self._logger.set_proxy_method(request.method)
         self._logger.set_proxy_url(request.build_absolute_uri())
         self._logger.set_proxy_request_headers(dict(request.headers))
-        self._logger.set_proxy_request_body(request.data)
+        if self.get_method() == "GET":
+            self._logger.set_proxy_request_body(request.query_params)
+        else:
+            self._logger.set_proxy_request_body(request.data)
         super().request_setter(request)
 
     def set_method(self, method: str) -> None:
