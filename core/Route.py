@@ -47,7 +47,6 @@ class Route(Methods):
     def set_headers(self, headers: dict) -> None:
         if "Host" in headers.keys():
             headers.pop("Host")
-        headers["Content-Type"] = "application/json"
         self.__headers = headers
         self._logger.set_core_request_headers(headers)
 
