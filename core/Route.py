@@ -1,22 +1,19 @@
 import requests
-from requests import Response
-
 from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 from .Methods import Methods
-import json
 
 
 class Route(Methods):
     def __init__(self):
         self._APP_ID = APP_ID
         self._BASE_URL = THIRD_PARTY_APP_URL
-        self.__method: str = None
-        self.__parameters: dict = {}
-        self.__response: dict = {}
-        self.__headers: dict = {}
-        self.__url: str = None
-        self.__status_code: int = None
+        self.__method: str | None = None
+        self.__parameters: dict | None = None
+        self.__response: dict | None = None
+        self.__headers: dict | None = None
+        self.__url: str | None = None
+        self.__status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length")
         self._logger = Logger()
 
@@ -71,7 +68,7 @@ class Route(Methods):
                 response = self.on_error(response)
         self.__response = response
 
-    def get_response(self) -> dict:
+    def get_response(self) -> dict | None:
         return self.__response
 
     def on_success(self, response: dict) -> dict:
@@ -87,18 +84,19 @@ class Route(Methods):
             json=self.get_parameters(),
             headers=self.get_headers()
         )
-        filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
-        response.headers = filtered_headers
-
         if response.status_code != 204:
             response_body = response.json()
         else:
             response_body = None
-
+        self._logger.set_core_response_headers(dict(response.headers))
         self._logger.set_core_response_body(response_body)
         self._logger.set_core_response_status_code(response.status_code)
 
+        filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
+        response.headers = filtered_headers
+
         self.set_response(response_body, response.status_code)
+        self._logger.set_proxy_response_headers(response.headers)
 
         self._logger.write()
 
