@@ -14,29 +14,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from services import BotList, BotDetail, Register, Login, Logout, EmailVerificationCheck, EmailVerificationResend, EmailVerificationVerify, DialogueList, DialogueDetail
 from django.urls import path, include
 from django.contrib import admin
-from classes.BotList import BotList
-from classes.BotDetail import BotDetail
-from classes.Register import Register
-from classes.Login import Login
-from classes.Logout import Logout
-from classes.EmailVerificationCheck import EmailVerificationCheck
-from classes.EmailVerificationResend import EmailVerificationResend
-from classes.EmailVerificationVerify import EmailVerificationVerify
-from classes.DialogueList import DialogueList
-from classes.DialogueDetail import DialogueDetail
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v0/users", Register().as_view()),
-    path("api/v0/users/login", Login().as_view()),
-    path("api/v0/users/logout", Logout().as_view()),
-    path("api/v0/users/email-verification/check", EmailVerificationCheck().as_view()),
-    path("api/v0/users/email-verification/resend", EmailVerificationResend().as_view()),
-    path("api/v0/users/email-verification/verify", EmailVerificationVerify().as_view()),
-    path("api/v0/bots", BotList().as_view()),
-    path("api/v0/bots/<int:bot_id>", BotDetail().as_view()),
-    path("api/v0/dialogues", DialogueList.as_view()),
-    path("api/v0/dialogues/<int:dialogue_id>", DialogueDetail.as_view())
+    path("api/v0/users", Register.Register().as_view()),
+    path("api/v0/users/login", Login.Login().as_view()),
+    path("api/v0/users/logout", Logout.Logout().as_view()),
+    path("api/v0/users/email-verification/check", EmailVerificationCheck.EmailVerificationCheck().as_view()),
+    path("api/v0/users/email-verification/resend", EmailVerificationResend.EmailVerificationResend().as_view()),
+    path("api/v0/users/email-verification/verify", EmailVerificationVerify.EmailVerificationVerify().as_view()),
+    path("api/v0/bots", BotList.BotList().as_view()),
+    path("api/v0/bots/<int:bot_id>", BotDetail.BotDetail().as_view()),
+    path("api/v0/dialogues", DialogueList.DialogueList().as_view()),
+    path("api/v0/dialogues/<int:dialogue_id>", DialogueDetail.DialogueDetail().as_view())
 ]

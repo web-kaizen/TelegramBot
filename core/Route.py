@@ -1,62 +1,104 @@
-import os
 import requests
-from requests import Response
-
-from logger.Logger import Logger
-from .Accessor import Accessor
+from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL
+from .Methods import Methods
 
 
-class Route(Accessor):
+class Route(Methods):
     def __init__(self):
-        self.__APP_ID = APP_ID
-        self.__BASE_URL = THIRD_PARTY_APP_URL
+        self._APP_ID = APP_ID
+        self._BASE_URL = THIRD_PARTY_APP_URL
+        self.__method: str | None = None
+        self.__parameters: dict | None = None
+        self.__response: dict | None = None
+        self.__headers: dict | None = None
+        self.__url: str | None = None
+        self.__status_code: int | None = None
+        self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length")
+        self._logger = Logger()
 
-    def check_response(self, response: Response) -> dict | None:
-        """Проверка response не содержание body используя headers["Content-Type"] (e.g. logout)"""
-        if response.status_code != 204:
-            return response.json()
+    def request_setter(self, request):
+        self._logger.set_proxy_method(request.method)
+        self._logger.set_proxy_url(request.build_absolute_uri())
+        self._logger.set_proxy_request_headers(dict(request.headers))
+        if self.get_method() == "GET":
+            self._logger.set_proxy_request_body(request.query_params)
         else:
-            return None
+            self._logger.set_proxy_request_body(request.data)
+        super().request_setter(request)
+
+    def set_method(self, method: str) -> None:
+        self.__method = method
+        self._logger.set_core_method(method)
+
+    def get_method(self) -> str:
+        return self.__method
+
+    def set_url(self, url: str) -> None:
+        self.__url = url
+        self._logger.set_core_url(url)
+
+    def get_url(self) -> str:
+        return self.__url
+
+    def set_headers(self, headers: dict) -> None:
+        if "Host" in headers.keys():
+            headers.pop("Host")
+        self.__headers = headers
+        self._logger.set_core_request_headers(headers)
+
+    def get_headers(self) -> dict:
+        return self.__headers
+
+    def set_parameters(self, data: dict) -> None:
+        self.__parameters = data
+        self._logger.set_core_request_body(data)
+
+    def get_parameters(self) -> dict:
+        return self.__parameters
+
+    def set_response(self, response: dict | None, status=None) -> None:
+        self._logger.set_proxy_response_body(response)
+        self._logger.set_proxy_response_status_code(status)
+
+        if response is not None and status is not None:
+            if 200 <= status < 300:
+                response = self.on_success(response)
+            if 400 <= status <= 500:
+                response = self.on_error(response)
+        self.__response = response
+
+    def get_response(self) -> dict | None:
+        return self.__response
+
+    def on_success(self, response: dict) -> dict:
+        return response
+
+    def on_error(self, response: dict) -> dict:
+        return response
 
     def send(self) -> tuple:
-        options_proxy = {
-            "proxy_method": self.get_proxy_method(),
-            "proxy_url": self.get_url(),
-            "proxy_request_headers": self.get_headers(),
-            "proxy_request_body": self.get_request(),
-            "proxy_response_headers": self.get_headers(),
-            "proxy_response_body": self.get_request(),
-        }
-
-        url = f'{self.__BASE_URL}{self.__APP_ID}'
         response = requests.request(
             method=self.get_method(),
-            url=f"{url}{self.get_patch()}",
+            url=self.get_url(),
             json=self.get_parameters(),
-            headers=self.allowed_client_headers(self.get_headers())
+            headers=self.get_headers()
         )
+        if response.status_code != 204:
+            response_body = response.json()
+        else:
+            response_body = None
+        self._logger.set_core_response_headers(dict(response.headers))
+        self._logger.set_core_response_body(response_body)
+        self._logger.set_core_response_status_code(response.status_code)
 
-        response_body = self.check_response(response)
+        filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
+        response.headers = filtered_headers
 
-        options_core = {
-            "core_method": self.get_method(),
-            "core_url": f"{url}{self.get_patch()}",
-            "core_request_headers": self.get_headers(),
-            "core_request_body": self.get_request(),
-            "core_response_headers": dict(response.headers),
-            "core_response_body": response_body,
-            "core_response_status_code": response.status_code
-        }
+        self.set_response(response_body, response.status_code)
+        self._logger.set_proxy_response_headers(response.headers)
 
+        self._logger.write()
 
-        logger = Logger(options=options_proxy | options_core)
-        logger.write()
-
-        response.headers.pop('Connection')
-        response.headers.pop('Keep-Alive')
-        return response_body, response.headers, response.status_code
-
-
-
+        return self.get_response(), response.headers, response.status_code
 

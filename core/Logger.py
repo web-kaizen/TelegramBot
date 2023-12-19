@@ -1,13 +1,13 @@
 from datetime import datetime
 from django.conf import settings
-from logger.models import Log
+from .models import Log
 from typing import Union
 
 
 class Logger:
     NEED_LOGGER: bool = settings.NEED_LOGGER
 
-    def __init__(self, options: dict = None):
+    def __init__(self, options: dict = {}):
         self.__log_entry = Log()
         self.set_proxy_method(method=options.get("proxy_method"))
         self.set_core_method(method=options.get('core_method'))
@@ -79,3 +79,4 @@ class Logger:
     def clear_fields(self) -> None:
         for field in self.__log_entry._meta.fields:
             setattr(self.__log_entry, field.attname, None)
+
