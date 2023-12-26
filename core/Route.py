@@ -1,28 +1,35 @@
 import requests
+import html
+from django.urls import resolve, reverse
 from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 from .Methods import Methods
 
 
 class Route(Methods):
-    def __init__(self):
+    def __init__(self, need_execute_local=False):
         self._APP_ID = APP_ID
-        self._BASE_URL = THIRD_PARTY_APP_URL
+        self._BASE_URL = THIRD_PARTY_APP_URL + self._APP_ID
         self.__method: str | None = None
         self.__parameters: dict | None = None
         self.__response: dict | None = None
         self.__headers: dict | None = None
         self.__url: str | None = None
         self.__status_code: int | None = None
-        self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length")
+        self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
         self._logger = Logger()
+        if need_execute_local:
+            self._BASE_URL = "http://127.0.0.1:8000/api/v0"
+            request = requests.Request(method=self.get_method(), url=f"{self._BASE_URL}{self.get_path()}")
+            request.query_params = {}
+            getattr(self, self.get_method().lower())(request)
 
     def request_setter(self, request):
         self._logger.set_proxy_method(request.method)
-        self._logger.set_proxy_url(request.build_absolute_uri())
+        self._logger.set_proxy_url(f"{self._BASE_URL}{self.get_path()}")
         self._logger.set_proxy_request_headers(dict(request.headers))
         if self.get_method() == "GET":
-            self._logger.set_proxy_request_body(request.query_params)
+            self._logger.set_proxy_request_body(dict(request.query_params))
         else:
             self._logger.set_proxy_request_body(request.data)
         super().request_setter(request)
@@ -60,7 +67,6 @@ class Route(Methods):
     def set_response(self, response: dict | None, status=None) -> None:
         self._logger.set_proxy_response_body(response)
         self._logger.set_proxy_response_status_code(status)
-
         if response is not None and status is not None:
             if 200 <= status < 300:
                 response = self.on_success(response)
@@ -84,10 +90,12 @@ class Route(Methods):
             json=self.get_parameters(),
             headers=self.get_headers()
         )
-        if response.status_code != 204:
+
+        content_type = response.headers.get("Content-Type", "")
+        response_body = response.text
+        if 'application/json' in content_type:
             response_body = response.json()
-        else:
-            response_body = None
+
         self._logger.set_core_response_headers(dict(response.headers))
         self._logger.set_core_response_body(response_body)
         self._logger.set_core_response_status_code(response.status_code)
@@ -101,4 +109,5 @@ class Route(Methods):
         self._logger.write()
 
         return self.get_response(), response.headers, response.status_code
+
 

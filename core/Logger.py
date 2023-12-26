@@ -47,9 +47,17 @@ class Logger:
         self._set("core_request_headers", headers)
 
     def set_proxy_request_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("proxy_request_body", body)
 
     def set_core_request_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("core_request_body", body)
 
     def set_proxy_response_headers(self, headers: dict) -> None:
@@ -59,9 +67,17 @@ class Logger:
         self._set("core_response_headers", headers)
 
     def set_proxy_response_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("proxy_response_body", body)
 
     def set_core_response_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("core_response_body", body)
 
     def set_proxy_response_status_code(self, status_code: int) -> None:
