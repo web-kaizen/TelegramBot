@@ -1,3 +1,6 @@
+import inspect
+import socket
+from django.core.management.commands.runserver import Command
 import requests
 import html
 from django.urls import resolve, reverse
@@ -7,9 +10,10 @@ from .Methods import Methods
 
 
 class Route(Methods):
-    def __init__(self, need_execute_local=False):
+    def __init__(self, need_execute_local=False, *args, **kwargs):
         self._APP_ID = APP_ID
-        self._BASE_URL = THIRD_PARTY_APP_URL + self._APP_ID
+        self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
+        self._BASE_URI = "/api/v0"
         self.__method: str | None = None
         self.__parameters: dict | None = None
         self.__response: dict | None = None
@@ -19,14 +23,22 @@ class Route(Methods):
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
         self._logger = Logger()
         if need_execute_local:
-            self._BASE_URL = "http://127.0.0.1:8000/api/v0"
-            request = requests.Request(method=self.get_method(), url=f"{self._BASE_URL}{self.get_path()}")
-            request.query_params = {}
+            request = requests.Request(
+                method=self.get_method(),
+                url=f"{self._THIRD_PARTY_APP_URL}{self._APP_ID}{self.get_path()}",
+            )
+            other_params: list = ["data", "query_params", "json", "headers"]
+            for param in other_params:
+                if param in inspect.signature(self.__init__).parameters:
+                    setattr(request, param, getattr(self, param))
+                else:
+                    setattr(request, param, {})
+
             getattr(self, self.get_method().lower())(request)
 
     def request_setter(self, request):
         self._logger.set_proxy_method(request.method)
-        self._logger.set_proxy_url(f"{self._BASE_URL}{self.get_path()}")
+        self._logger.set_proxy_url(f"http://{Command.default_addr}:{Command.default_port}{self._BASE_URI}{self.get_path()}")
         self._logger.set_proxy_request_headers(dict(request.headers))
         if self.get_method() == "GET":
             self._logger.set_proxy_request_body(dict(request.query_params))
@@ -84,13 +96,13 @@ class Route(Methods):
         return response
 
     def send(self) -> tuple:
+
         response = requests.request(
             method=self.get_method(),
             url=self.get_url(),
             json=self.get_parameters(),
             headers=self.get_headers()
         )
-
         content_type = response.headers.get("Content-Type", "")
         response_body = response.text
         if 'application/json' in content_type:

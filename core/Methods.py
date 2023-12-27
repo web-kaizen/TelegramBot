@@ -9,7 +9,7 @@ class Methods:
 
     def request_setter(self, request):
         self.set_method(self.get_method())
-        self.set_url(f'{self._BASE_URL}{self.get_path()}')
+        self.set_url(f'{self._THIRD_PARTY_APP_URL}{APP_ID}{self.get_path()}')
         self.set_headers(dict(request.headers))
 
         if self.get_method() == "GET":

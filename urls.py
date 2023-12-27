@@ -18,7 +18,6 @@ from services import BotList, BotDetail, Register, Login, Logout, EmailVerificat
 from django.urls import path, include
 from django.contrib import admin
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v0/users", Register.Register().as_view()),

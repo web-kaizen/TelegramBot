@@ -15,7 +15,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
 import environ
 
 load_dotenv()
@@ -195,7 +194,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-"""ASGI SETTINGS DJANGO"""
+""" ASGI SETTINGS DJANGO"""
 import os
 from django.core.asgi import get_asgi_application
 
