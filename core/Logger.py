@@ -90,7 +90,7 @@ class Logger:
         if self.NEED_LOGGER:
             self.__log_entry.created_at = datetime.now().isoformat()
             self.__log_entry.save()
-            self.clear_fields()
+        self.clear_fields()
 
     def clear_fields(self) -> None:
         for field in self.__log_entry._meta.fields:

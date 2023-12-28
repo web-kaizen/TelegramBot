@@ -14,12 +14,12 @@ class Route(Methods):
         self._APP_ID = APP_ID
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
         self._BASE_URI = "/api/v0"
-        self.__method: str | None = None
-        self.__parameters: dict | None = None
-        self.__response: dict | None = None
-        self.__headers: dict | None = None
-        self.__url: str | None = None
-        self.__status_code: int | None = None
+        self._method: str | None = None
+        self._parameters: dict | None = None
+        self._response: dict | None = None
+        self._headers: dict | None = None
+        self._url: str | None = None
+        self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
         self._logger = Logger()
         if need_execute_local:
@@ -47,34 +47,34 @@ class Route(Methods):
         super().request_setter(request)
 
     def set_method(self, method: str) -> None:
-        self.__method = method
+        self._method = method
         self._logger.set_core_method(method)
 
     def get_method(self) -> str:
-        return self.__method
+        return self._method
 
     def set_url(self, url: str) -> None:
-        self.__url = url
+        self._url = url
         self._logger.set_core_url(url)
 
     def get_url(self) -> str:
-        return self.__url
+        return self._url
 
     def set_headers(self, headers: dict) -> None:
         if "Host" in headers.keys():
             headers.pop("Host")
-        self.__headers = headers
+        self._headers = headers
         self._logger.set_core_request_headers(headers)
 
     def get_headers(self) -> dict:
-        return self.__headers
+        return self._headers
 
     def set_parameters(self, data: dict) -> None:
-        self.__parameters = data
+        self._parameters = data
         self._logger.set_core_request_body(data)
 
     def get_parameters(self) -> dict:
-        return self.__parameters
+        return self._parameters
 
     def set_response(self, response: dict | None, status=None) -> None:
         self._logger.set_proxy_response_body(response)
@@ -84,10 +84,10 @@ class Route(Methods):
                 response = self.on_success(response)
             if 400 <= status <= 500:
                 response = self.on_error(response)
-        self.__response = response
+        self._response = response
 
     def get_response(self) -> dict | None:
-        return self.__response
+        return self._response
 
     def on_success(self, response: dict) -> dict:
         return response
@@ -103,13 +103,14 @@ class Route(Methods):
             json=self.get_parameters(),
             headers=self.get_headers()
         )
+
         content_type = response.headers.get("Content-Type", "")
         response_body = response.text
         if 'application/json' in content_type:
             response_body = response.json()
 
         self._logger.set_core_response_headers(dict(response.headers))
-        self._logger.set_core_response_body(response_body)
+        self._logger.set_core_response_body(response_body.copy())
         self._logger.set_core_response_status_code(response.status_code)
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
