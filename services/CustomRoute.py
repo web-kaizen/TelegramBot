@@ -10,4 +10,4 @@ class CustomRoute(Route):
             if 'error' in response:
                 super().set_response(response['error'], status)
                 response['error'] = super().get_response()
-        self._response = response
+        super().set_response(response, status)

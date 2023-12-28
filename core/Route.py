@@ -105,12 +105,14 @@ class Route(Methods):
         )
 
         content_type = response.headers.get("Content-Type", "")
-        response_body = response.text
+
+        response_body = response.text if response.text else None
+
         if 'application/json' in content_type:
             response_body = response.json()
 
         self._logger.set_core_response_headers(dict(response.headers))
-        self._logger.set_core_response_body(response_body.copy())
+        self._logger.set_core_response_body(response_body.copy() if response_body else response_body)
         self._logger.set_core_response_status_code(response.status_code)
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
