@@ -40,6 +40,9 @@ env = environ.Env(
     POSTGRES_DB_PASSWORD=str,
     POSTGRES_DB_HOST=str,
     POSTGRES_DB_PORT=int,
+    LOCALHOST=str,
+    ALLOWED_HOSTS=str,
+    INTERNAL_IPS=str
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -56,7 +59,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '85.215.65.210']
+LOCALHOST = env('LOCALHOST')
+BASE_URI = "/api/v0"
+ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(', ')
 
 # Application definition
 
@@ -118,12 +123,8 @@ DATABASES = {
 # Logger
 NEED_LOGGER = env("NEED_LOGGER")
 
-INTERNAL_IPS = [
-    '127.0.0.1',
-    'localhost',
-    '0.0.0.0',
-    '85.215.65.210'
-]
+# Internal IPS
+INTERNAL_IPS = env("INTERNAL_IPS").split(", ")
 
 # Yadro
 APP_ID = env('APP_ID')
@@ -142,9 +143,6 @@ CACHES = {
         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
     }
 }
-
-
-
 
 
 # Password validation
@@ -184,10 +182,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8080",
-#     "http://127.0.0.1:8000"
-# ]
+CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS").split(", ")
 
 CORS_ORIGIN_ALLOW_ALL = True
 # Default primary key field type
