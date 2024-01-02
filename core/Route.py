@@ -17,6 +17,7 @@ class Route(Methods):
         self._url: str | None = None
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
+
         self._logger = Logger()
         if need_execute_local:
             request = requests.Request(
@@ -116,6 +117,12 @@ class Route(Methods):
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
         response.headers = filtered_headers
+
+        response.headers.update({
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': '*'
+        })
 
         self.set_response(response_body, response.status_code)
         self._logger.set_proxy_response_headers(response.headers)
