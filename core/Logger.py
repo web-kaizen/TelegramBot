@@ -47,9 +47,17 @@ class Logger:
         self._set("core_request_headers", headers)
 
     def set_proxy_request_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("proxy_request_body", body)
 
     def set_core_request_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("core_request_body", body)
 
     def set_proxy_response_headers(self, headers: dict) -> None:
@@ -59,9 +67,17 @@ class Logger:
         self._set("core_response_headers", headers)
 
     def set_proxy_response_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("proxy_response_body", body)
 
     def set_core_response_body(self, body: dict) -> None:
+        if type(body) == str:
+            body = {
+                "content": body
+            }
         self._set("core_response_body", body)
 
     def set_proxy_response_status_code(self, status_code: int) -> None:
@@ -74,9 +90,8 @@ class Logger:
         if self.NEED_LOGGER:
             self.__log_entry.created_at = datetime.now().isoformat()
             self.__log_entry.save()
-            self.clear_fields()
+        self.clear_fields()
 
     def clear_fields(self) -> None:
         for field in self.__log_entry._meta.fields:
             setattr(self.__log_entry, field.attname, None)
-
