@@ -5,6 +5,7 @@ import os
 """ DJANGO SETUP """
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
+
 from services import BotList, BotDetail, DialogueList, DialogueDetail, EmailVerificationCheck, EmailVerificationResend, EmailVerificationVerify, Register, Login, Logout
 
 
@@ -20,13 +21,13 @@ class Handler:
         response = bot_list.get_response()
         return response
 
-    def bot_detail(self):
+    def bot_detail(self, bot_id):
         '''
         Returns a list of detailed bot
         Parameters:
-            None
+            bot_id - identifier of the bot
         '''
-        bot_detail = BotDetail.BotDetail(bot_id=1, need_execute_local=True)
+        bot_detail = BotDetail.BotDetail(bot_id=bot_id, need_execute_local=True)
         response = bot_detail.get_response()
         return response
 
@@ -104,7 +105,6 @@ class Handler:
         dialogue_details = DialogueDetail.DialogueDetail(method="GET", dialogue_id=dialogue_id, need_execute_local=True, token=token)
         response = dialogue_details.get_response()
         return response
-
 
     def email_check(self, token):
         '''
