@@ -31,5 +31,5 @@ urlpatterns = [
     path("api/v0/bots/<int:bot_id>", BotDetail.BotDetail().as_view()),
     path("api/v0/dialogues", DialogueList.DialogueList().as_view()),
     path("api/v0/dialogues/<int:dialogue_id>", DialogueDetail.DialogueDetail().as_view()),
-    path("api/v0/dialogues/<int:dialogue_id>/messages", Message.Message.as_view()),
+    path("api/v0/dialogues/<int:dialogue_id>/messages", Message.MessageBase.as_view()),
 ]
