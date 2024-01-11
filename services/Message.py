@@ -18,7 +18,7 @@ class MessageCreate(Route, APIView):
         return 'POST'
 
 
-class Message(MessageList, MessageCreate, APIView):
+class MessageBase(MessageList, MessageCreate, APIView):
 
     def __init__(self):
         super().__init__()
