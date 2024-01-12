@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .settings import APP_ID, THIRD_PARTY_APP_URL
 
 
@@ -43,3 +42,12 @@ class Methods:
         self.request_setter(request)
         response, headers, status_code = self.send()
         return Response(status=status_code, data=response, headers=headers)
+
+    def options(self, request):
+        self.request_setter(request)
+        headers: dict | None = {
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': '*'
+        }
+        return Response(status=200, data=None, headers=headers)

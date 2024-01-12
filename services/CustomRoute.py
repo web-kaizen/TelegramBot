@@ -6,8 +6,8 @@ class CustomRoute(Route):
         if response:
             if 'result' in response:
                 super().set_response(response['result'], status)
-                response = super().get_response()
+                response['result'] = super().get_response()
             if 'error' in response:
                 super().set_response(response['error'], status)
-                response = super().get_response()
+                response['error'] = super().get_response()
         super().set_response(response, status)

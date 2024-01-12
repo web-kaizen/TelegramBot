@@ -1,11 +1,10 @@
 import inspect
-import socket
 from django.core.management.commands.runserver import Command
 import requests
 import html
 from django.urls import resolve, reverse
 from .Logger import Logger
-from .settings import APP_ID, THIRD_PARTY_APP_URL
+from .settings import APP_ID, THIRD_PARTY_APP_URL, LOCALHOST, BASE_URI
 from .Methods import Methods
 
 
@@ -13,7 +12,6 @@ class Route(Methods):
     def __init__(self, need_execute_local=False, *args, **kwargs):
         self._APP_ID = APP_ID
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
-        self._BASE_URI = "/api/v0"
         self._method: str | None = None
         self._parameters: dict | None = None
         self._response: dict | None = None
@@ -21,6 +19,7 @@ class Route(Methods):
         self._url: str | None = None
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
+
         self._logger = Logger()
         if need_execute_local:
             request = requests.Request(
@@ -38,7 +37,10 @@ class Route(Methods):
 
     def request_setter(self, request):
         self._logger.set_proxy_method(request.method)
-        self._logger.set_proxy_url(f"http://{Command.default_addr}:{Command.default_port}{self._BASE_URI}{self.get_path()}")
+        try:
+            self._logger.set_proxy_url(request.build_absolute_uri())
+        except Exception as ex:
+            self._logger.set_proxy_url(f"{LOCALHOST}{BASE_URI}{self.get_path()}")
         self._logger.set_proxy_request_headers(dict(request.headers))
         if self.get_method() == "GET":
             self._logger.set_proxy_request_body(dict(request.query_params))
@@ -117,6 +119,12 @@ class Route(Methods):
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
         response.headers = filtered_headers
+
+        response.headers.update({
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': '*'
+        })
 
         self.set_response(response_body, response.status_code)
         self._logger.set_proxy_response_headers(response.headers)
