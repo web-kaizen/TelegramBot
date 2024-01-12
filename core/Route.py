@@ -1,4 +1,6 @@
 import inspect
+from typing import Any
+
 from django.core.management.commands.runserver import Command
 import requests
 import html
@@ -14,8 +16,10 @@ class Route(Methods):
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
         self._method: str | None = None
         self._parameters: dict | None = None
-        self._response: dict | None = None
+        self.__response_body: dict | None = None
+        self.__response_copy: dict | None = None
         self._headers: dict | None = None
+        self.__request_headers: dict | None = None
         self._url: str | None = None
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
@@ -35,7 +39,12 @@ class Route(Methods):
 
             getattr(self, self.get_method().lower())(request)
 
-    def request_setter(self, request):
+    def request_setter(self, request, *args, **kwargs):
+        self._dialogue_id = kwargs.get("dialogue_id")
+        self._bot_id = kwargs.get("bot_id")
+        self.__request_headers = dict(request.headers)
+        self.__request_headers["Content-Type"] = "application/json"
+        request.headers = self.__request_headers
         self._logger.set_proxy_method(request.method)
         try:
             self._logger.set_proxy_url(request.build_absolute_uri())
@@ -86,10 +95,10 @@ class Route(Methods):
                 response = self.on_success(response)
             if 400 <= status <= 500:
                 response = self.on_error(response)
-        self._response = response
+        self.__response_copy = response
 
     def get_response(self) -> dict | None:
-        return self._response
+        return self.__response_copy
 
     def on_success(self, response: dict) -> dict:
         return response
@@ -108,13 +117,15 @@ class Route(Methods):
 
         content_type = response.headers.get("Content-Type", "")
 
-        response_body = response.text if response.text else None
+        self.__response_copy = response.text if response.text else None
+        self.__response_body = response.text if response.text else None
 
         if 'application/json' in content_type:
-            response_body = response.json()
+            self.__response_copy = response.json()
+            self.__response_body = response.json()
 
         self._logger.set_core_response_headers(dict(response.headers))
-        self._logger.set_core_response_body(response_body.copy() if response_body else response_body)
+        self._logger.set_core_response_body(self.__response_body)
         self._logger.set_core_response_status_code(response.status_code)
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
@@ -126,7 +137,7 @@ class Route(Methods):
             'Access-Control-Allow-Methods': '*'
         })
 
-        self.set_response(response_body, response.status_code)
+        self.set_response(self.__response_copy, response.status_code)
         self._logger.set_proxy_response_headers(response.headers)
 
         self._logger.write()

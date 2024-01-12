@@ -1,6 +1,5 @@
-from requests import Request
-from core.Route import Route
 from rest_framework.views import APIView
+from core.Route import Route
 
 from services.CustomRoute import CustomRoute
 
@@ -13,9 +12,7 @@ class DialogueList(CustomRoute, APIView):
         super().__init__(need_execute_local)
 
     def get_method(self) -> str:
-        if self.method:
-            return f"{self.method}"
-        return self.request.method
+        return "GET"
 
     def get_path(self) -> str:
-        return "/dialogues"
+        return f"/dialogues"
