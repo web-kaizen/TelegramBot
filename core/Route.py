@@ -12,7 +12,8 @@ class Route(Methods):
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
         self._method: str | None = None
         self._parameters: dict | None = None
-        self._response: dict | None = None
+        self._core_response: dict | None = None
+        self._proxy_response: dict | None = None
         self._headers: dict | None = None
         self._url: str | None = None
         self._status_code: int | None = None
@@ -84,10 +85,10 @@ class Route(Methods):
                 response = self.on_success(response)
             if 400 <= status <= 500:
                 response = self.on_error(response)
-        self._response = response
+        self._proxy_response = response
 
     def get_response(self) -> dict | None:
-        return self._response
+        return self._proxy_response
 
     def on_success(self, response: dict) -> dict:
         return response
@@ -106,13 +107,15 @@ class Route(Methods):
 
         content_type = response.headers.get("Content-Type", "")
 
-        response_body = response.text if response.text else None
+        self._proxy_response = response.text if response.text else None
+        self._core_response = response.text if response.text else None
 
         if 'application/json' in content_type:
-            response_body = response.json()
+            self._proxy_response = response.json()
+            self._core_response = response.json()
 
         self._logger.set_core_response_headers(dict(response.headers))
-        self._logger.set_core_response_body(response_body.copy() if response_body else response_body)
+        self._logger.set_core_response_body(self._core_response)
         self._logger.set_core_response_status_code(response.status_code)
 
         filtered_headers = {k: v for k, v in response.headers.items() if k not in self._not_allowed_headers}
@@ -124,7 +127,7 @@ class Route(Methods):
             'Access-Control-Allow-Methods': '*'
         })
 
-        self.set_response(response_body, response.status_code)
+        self.set_response(self._proxy_response, response.status_code)
         self._logger.set_proxy_response_headers(response.headers)
 
         self._logger.write()
