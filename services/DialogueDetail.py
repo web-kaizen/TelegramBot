@@ -12,8 +12,6 @@ class DialogueDetail(Route, APIView):
         super().__init__(need_execute_local)
 
     def get_method(self) -> str:
-        if self.method:
-            return f"{self.method}"
         return "GET"
 
     def get_path(self) -> str:
