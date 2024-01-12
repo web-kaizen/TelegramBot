@@ -1,4 +1,6 @@
 import inspect
+from typing import Any
+
 from django.core.management.commands.runserver import Command
 import requests
 from .Logger import Logger
@@ -34,7 +36,9 @@ class Route(Methods):
 
             getattr(self, self.get_method().lower())(request)
 
-    def request_setter(self, request):
+    def request_setter(self, request, *args, **kwargs):
+        self._dialogue_id = kwargs.get("dialogue_id")
+        self._bot_id = kwargs.get("bot_id")
         self.__request_headers = dict(request.headers)
         self.__request_headers["Content-Type"] = "application/json"
         request.headers = self.__request_headers
