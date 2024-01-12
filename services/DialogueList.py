@@ -1,21 +1,11 @@
-from requests import Request
-from core.Route import Route
 from rest_framework.views import APIView
+from core.Route import Route
 
 
 class DialogueList(Route, APIView):
-    def __init__(self):
-        super().__init__()
-        self.__request_headers: dict = None
-
-    def request_setter(self, request):
-        self.__request_headers = dict(request.headers)
-        self.__request_headers["Content-Type"] = "application/json"
-        request.headers = self.__request_headers
-        super().request_setter(request)
 
     def get_method(self) -> str:
-        return self.request.method
+        return "GET"
 
     def get_path(self) -> str:
-        return "/dialogues"
+        return f"/dialogues"
