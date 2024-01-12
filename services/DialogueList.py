@@ -1,12 +1,11 @@
-from requests import Request
-from core.Route import Route
 from rest_framework.views import APIView
+from core.Route import Route
 
 
 class DialogueList(Route, APIView):
 
     def get_method(self) -> str:
-        return self.request.method
+        return "GET"
 
     def get_path(self) -> str:
-        return "/dialogues"
+        return f"/dialogues"

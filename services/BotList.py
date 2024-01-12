@@ -9,6 +9,3 @@ class BotList(Route, APIView):
 
     def get_path(self) -> str:
         return "/bots"
-
-
-

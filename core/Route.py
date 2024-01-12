@@ -1,4 +1,6 @@
 import inspect
+from typing import Any
+
 from django.core.management.commands.runserver import Command
 import requests
 from .Logger import Logger
@@ -15,6 +17,7 @@ class Route(Methods):
         self._core_response: dict | None = None
         self._proxy_response: dict | None = None
         self._headers: dict | None = None
+        self.__request_headers: dict | None = None
         self._url: str | None = None
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
@@ -34,7 +37,12 @@ class Route(Methods):
 
             getattr(self, self.get_method().lower())(request)
 
-    def request_setter(self, request):
+    def request_setter(self, request, *args, **kwargs):
+        self._dialogue_id = kwargs.get("dialogue_id")
+        self._bot_id = kwargs.get("bot_id")
+        self.__request_headers = dict(request.headers)
+        self.__request_headers["Content-Type"] = "application/json"
+        request.headers = self.__request_headers
         self._logger.set_proxy_method(request.method)
         try:
             self._logger.set_proxy_url(request.build_absolute_uri())

@@ -2,7 +2,6 @@ from core.Route import Route
 
 
 class CustomRoute(Route):
-
     def set_response(self, response: dict | None, status=None) -> None:
         if response:
             if 'result' in response:

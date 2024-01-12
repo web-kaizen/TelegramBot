@@ -9,4 +9,3 @@ class EmailVerificationVerify(Route, APIView):
 
     def get_path(self) -> str:
         return f"/users/email-verification/verify"
-
