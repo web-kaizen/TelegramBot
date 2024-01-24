@@ -1,6 +1,7 @@
 import inspect
 from typing import Any
-
+from django.core.cache import cache
+from core.settings import CACHE_DEFAULT_TTL
 from django.core.management.commands.runserver import Command
 import requests
 import html
@@ -107,13 +108,20 @@ class Route(Methods):
         return response
 
     def send(self) -> tuple:
+        cache_key = f"core_{self.__class__.__name__}_response"
+        use_cache = self.get_method() and self.__class__.__name__ == "BotList"
+        response = cache.get(key=cache_key)
 
-        response = requests.request(
-            method=self.get_method(),
-            url=self.get_url(),
-            json=self.get_parameters(),
-            headers=self.get_headers()
-        )
+        if not response:
+            response = requests.request(
+                method=self.get_method(),
+                url=self.get_url(),
+                json=self.get_parameters(),
+                headers=self.get_headers()
+            )
+
+            if use_cache:
+                cache.set(key=cache_key, value=response, timeout=CACHE_DEFAULT_TTL)
 
         content_type = response.headers.get("Content-Type", "")
 
