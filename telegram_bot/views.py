@@ -37,8 +37,5 @@ async def start(clb: CallbackQuery):
         expires_in, token = login["result"]["expires_in"], login["result"]["access_token"]
 
         cache.set(key=cache_key, value={"email": user.email, "token": token, "expires_in": expires_in}, timeout=expires_in)
-    else:
-        email = authorized["email"]
-        token = authorized["token"]
 
-    await clb.answer(text=f"{email}, {token}")
+    await main_menu(clb)
