@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
+from core.Route import Route
 from services.CustomRoute import CustomRoute
 
 
-class Register(CustomRoute, APIView):
+class Register(Route, APIView):
     def __init__(self, data: dict = None, need_execute_local=False):
         self.data: dict = data
         super().__init__(need_execute_local)

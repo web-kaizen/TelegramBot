@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
+from core.Route import Route
 from services.CustomRoute import CustomRoute
 
 
-class Logout(CustomRoute, APIView):
+class Logout(Route, APIView):
     def __init__(self, headers={}, token=None, need_execute_local=False):
         self.headers: dict = headers
         self.headers["Authorization"] = f"Bearer {token}"
