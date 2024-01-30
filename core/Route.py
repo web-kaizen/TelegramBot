@@ -12,7 +12,7 @@ from .Methods import Methods
 
 
 class Route(Methods):
-    def __init__(self, need_execute_local=False, *args, **kwargs):
+    def __init__(self, need_execute_local=False, use_cache=False, *args, **kwargs):
         self._APP_ID = APP_ID
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
         self._method: str | None = None
@@ -25,6 +25,7 @@ class Route(Methods):
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
 
+        self._use_cache: bool = use_cache
         self._logger = Logger()
         if need_execute_local:
             request = requests.Request(
@@ -108,10 +109,7 @@ class Route(Methods):
         return response
 
     def send(self) -> tuple:
-        cache_key = f"core_{self.__class__.__name__}_response"
-        use_cache = self.get_method() and self.__class__.__name__ == "BotList"
-        response = cache.get(key=cache_key)
-
+        response = cache.get(key=f"core_{self.__class__.__name__}_response")
         if not response:
             response = requests.request(
                 method=self.get_method(),
@@ -119,9 +117,8 @@ class Route(Methods):
                 json=self.get_parameters(),
                 headers=self.get_headers()
             )
-
-            if use_cache:
-                cache.set(key=cache_key, value=response, timeout=CACHE_DEFAULT_TTL)
+            if self._use_cache:
+                cache.set(key=f"core_{self.__class__.__name__}_response", value=response, timeout=CACHE_DEFAULT_TTL)
 
         content_type = response.headers.get("Content-Type", "")
 
