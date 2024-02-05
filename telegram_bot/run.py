@@ -1,13 +1,12 @@
 import os, django, asyncio, logging
 from aiogram import Dispatcher, Bot, F, Router
-from tg_services import start, main_menu
-
+from tg_services.assets import router
 ''' django setup '''
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-router = Router()
+from tg_services import start, main_menu, start_dialogue, select_model, help
 
 
 async def main() -> None:
@@ -17,6 +16,11 @@ async def main() -> None:
     dp.include_router(router=router)
     dp.message.register(start.start)
     dp.message.register(main_menu.main_menu)
+    dp.message.register(select_model.select_model)
+    dp.message.register(help.help)
+    dp.message.register(start_dialogue.start_dialogue)
+    dp.message.register(start_dialogue.new_dialogue)
+    dp.message.register(start_dialogue.free_mode)
     await dp.start_polling(bot, skip_updates=True)
 
 

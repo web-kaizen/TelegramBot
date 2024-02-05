@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 from datetime import datetime
 from django.core.cache import cache
 from .main_menu import main_menu
-from telegram_bot.run import router
+from .assets import router
 
 from services import Register, Login, BotList, BotDetail, DialogueList
 from telegram_bot.models import User
@@ -39,12 +39,13 @@ async def start(clb: CallbackQuery):
             if not token:
                 await clb.answer("Token was not provided...")
                 raise requests.exceptions.ProxyError("Invalid token")
-
             cache.set(key=cache_key, value={"email": user.email, "token": token}, timeout=expires_in)
             return await main_menu(clb)
 
         elif login._status_code == 401:
             await clb.answer("Invalid email or password")
+            user.delete() # then delete from YADRO
+            return await start(clb)
         elif login._status_code == 404:
             await clb.answer("No data was found, please try again later")
         elif login._status_code == 500:
