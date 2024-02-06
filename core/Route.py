@@ -109,23 +109,17 @@ class Route(Methods):
         return response
 
     def send(self) -> tuple:
-        if self._use_cache:
-            response = cache.get(key=f"core_{self.__class__.__name__}_response")
-            if not response:
-                response = requests.request(
-                    method=self.get_method(),
-                    url=self.get_url(),
-                    json=self.get_parameters(),
-                    headers=self.get_headers()
-                )
-                cache.set(key=f"core_{self.__class__.__name__}_response", value=response, timeout=CACHE_DEFAULT_TTL)
-        else:
+        response = cache.get(key=f"core_{self.__class__.__name__}_response") if self._use_cache else None
+
+        if not response:
             response = requests.request(
                 method=self.get_method(),
                 url=self.get_url(),
                 json=self.get_parameters(),
                 headers=self.get_headers()
             )
+            if self._use_cache:
+                cache.set(key=f"core_{self.__class__.__name__}_response", value=response, timeout=CACHE_DEFAULT_TTL)
 
         content_type = response.headers.get("Content-Type", "")
 
