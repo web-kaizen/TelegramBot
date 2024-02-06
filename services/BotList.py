@@ -3,7 +3,7 @@ from services.CustomRoute import CustomRoute
 
 
 class BotList(CustomRoute, APIView):
-    def __init__(self, use_cache=False):
+    def __init__(self, use_cache=True):
         super().__init__(use_cache=use_cache)
 
     def get_method(self) -> str:
