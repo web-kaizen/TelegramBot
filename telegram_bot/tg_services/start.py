@@ -61,7 +61,7 @@ async def start(clb: CallbackQuery):
         if type(reg_status_res) is str:
             return await clb.answer(text=reg_status_res)
         elif reg_status_res is Login.Login:
-            user.user_id = register_response.get("user_core_id", None)
+            user.user_core_id = register_response.get("user_id", None)
             user.save()
             await log_user(clb=clb, user=user, login_status_options=login_status_options)
 
