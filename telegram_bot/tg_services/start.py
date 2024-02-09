@@ -1,6 +1,5 @@
 import os, django, requests
 from typing import Any
-
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
 from datetime import datetime
