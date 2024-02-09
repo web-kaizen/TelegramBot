@@ -57,11 +57,13 @@ async def start(clb: CallbackQuery):
     elif not user:
         user = User.objects.create(user_id=clb.from_user.id, email=email, password=password)
         register = Register.Register(data={"email": user.email, "password": user.password}, need_execute_local=True)
-
+        register_response = register.get_response()
         reg_status_res = register_status_options[register._status_code]
         if type(reg_status_res) is str:
             return await clb.answer(text=reg_status_res)
         elif reg_status_res is Login.Login:
+            print(register_response)
+            user.user_id = register_response.get("user_id")
             await log_user(clb=clb, user=user, login_status_options=login_status_options)
 
     return await main_menu(clb)
