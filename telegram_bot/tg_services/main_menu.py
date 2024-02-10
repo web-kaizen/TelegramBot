@@ -1,17 +1,8 @@
 import random, string, os, django
 from aiogram import Bot, Dispatcher, Router, F, types
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
-
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-
-''' django setup '''
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
-django.setup()
-
-
-router = Router()
+from telegram_bot.run import router
 
 
 @router.callback_query(F.data == "main_menu")
@@ -30,4 +21,3 @@ async def main_menu(clb: CallbackQuery):
         """,
         reply_markup=builder.as_markup()
     )
-

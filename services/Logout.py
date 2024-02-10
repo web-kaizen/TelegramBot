@@ -3,7 +3,7 @@ from core.Route import Route
 from services.CustomRoute import CustomRoute
 
 
-class Logout(Route, APIView):
+class Logout(CustomRoute, APIView):
     def __init__(self, headers={}, token=None, need_execute_local=False):
         self.headers: dict = headers
         self.headers["Authorization"] = f"Bearer {token}"
