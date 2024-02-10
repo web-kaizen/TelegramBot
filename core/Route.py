@@ -120,7 +120,6 @@ class Route(Methods):
 
     def send(self) -> tuple:
         response = cache.get(key=f"core_{self.__class__.__name__}_response") if self._use_cache else None
-
         if not response:
             response = requests.request(
                 method=self.get_method(),
