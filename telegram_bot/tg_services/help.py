@@ -6,25 +6,21 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from itertools import groupby
 from operator import itemgetter
 from telegram_bot.tg_services.assets import HELP_MESSAGE, WELCOME_MESSAGE
-''' django setup '''
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
-django.setup()
 
 from services import Register, Login, BotList, BotDetail, DialogueList
-from .assets import router
+
+router = Router()
 
 
 @router.callback_query(F.data == "help")
-@router.message(Command("help"))
 async def help(callback: CallbackQuery):
+    select_option_message = callback.message
+
     bot_list_response = BotList.BotList(need_execute_local=True).get_response()
-    # Сортируем данные по авторам и именам моделей
-    sorted_data = sorted(bot_list_response, key=itemgetter("author", "model_name"))
 
     # Группируем данные по авторам
     bot_list_result = {key: [item["model_name"] for item in group] for key, group in
-                    groupby(sorted_data, key=itemgetter("author"))}
+                    groupby(bot_list_response, key=itemgetter("author"))}
 
     bot_list_text = str()
 
@@ -42,3 +38,5 @@ async def help(callback: CallbackQuery):
         text=f"{HELP_MESSAGE}\n{bot_list_text}",
         reply_markup=builder.as_markup()
     )
+    await select_option_message.delete()
+
