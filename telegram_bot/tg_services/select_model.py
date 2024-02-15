@@ -1,17 +1,17 @@
-import random, string, os, django
-from aiogram import Bot, Dispatcher, Router, F, types
+from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from itertools import groupby
 from operator import itemgetter
 from services import BotList
-from .assets import router
+
+router = Router()
 
 
-def add_buttons(builder, items, key_prefix, back_prefix):
-    for index, name in enumerate(items):
-        print(f"{key_prefix}:{index}")
-        builder.add(InlineKeyboardButton(text=name, callback_data=f"{key_prefix}:{index}"))
+def add_buttons(builder, models, key_prefix, back_prefix):
+    for model_id, name in models:
+        print(f"{key_prefix}:{model_id}")
+        builder.add(InlineKeyboardButton(text=name, callback_data=f"{key_prefix}:{model_id}"))
     builder.row(InlineKeyboardButton(text='<- BACK', callback_data=f'{back_prefix}'))
 
 
@@ -19,16 +19,11 @@ def add_buttons(builder, items, key_prefix, back_prefix):
 async def select_model(callback: CallbackQuery):
 
     bot_list_response = BotList.BotList(need_execute_local=True).get_response()
-    # Сортируем данные по авторам и именам моделей
-    print(bot_list_response)
-    sorted_data = sorted(bot_list_response, key=itemgetter("author", "model_name"))
 
-    # Группируем данные по авторам
-    bot_list_result = {key: [item["model_name"] for item in group] for key, group in
-                    groupby(sorted_data, key=itemgetter("author"))}
+    # Группируем данные по авторам ({Автор: [модели]})
+    bot_list_result = {key: [[item["id"], item["model_name"]] for item in group if item['status_code'] == "active"] for key, group in
+                    groupby(bot_list_response, key=itemgetter("author"))}
 
-    # bot_list = {'1111': ['aaaa', 'bbbb', 'cccc'], '2222': ['dddd', 'ffff']}
-    models = []
     builder = InlineKeyboardBuilder()
 
     if callback.data == 'select_model':
