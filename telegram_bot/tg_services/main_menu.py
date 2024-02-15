@@ -1,4 +1,3 @@
-from aiogram.exceptions import TelegramBadRequest
 from aiogram import Router, F
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -22,7 +21,7 @@ async def main_menu(clb: CallbackQuery):
             message_id=clb.message.message_id,
             reply_markup=builder.as_markup()
         )
-    except TelegramBadRequest as ex:
+    except Exception as ex:
         await clb.answer(
             text=WELCOME_MESSAGE,
             reply_markup=builder.as_markup()
