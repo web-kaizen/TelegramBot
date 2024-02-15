@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from core.Route import Route
+from services.CustomRoute import CustomRoute
 
 
-class DialogueCreate(Route, APIView):
+class DialogueCreate(CustomRoute, APIView):
 
     def __init__(self, data: dict = None, headers: dict = {}, token=None, need_execute_local=False):
         self.data: dict = data
