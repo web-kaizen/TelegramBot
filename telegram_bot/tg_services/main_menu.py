@@ -1,8 +1,11 @@
-import random, string, os, django
-from aiogram import Bot, Dispatcher, Router, F, types
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
+from aiogram.exceptions import TelegramBadRequest
+from aiogram import Router, F
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from .assets import router, WELCOME_MESSAGE
+from .assets import WELCOME_MESSAGE
+
+
+router = Router()
 
 
 @router.callback_query(F.data == "main_menu")
@@ -13,7 +16,14 @@ async def main_menu(clb: CallbackQuery):
     builder.row(InlineKeyboardButton(text='Профиль', callback_data='account'))
     builder.row(InlineKeyboardButton(text='Помощь', callback_data='help'))
 
-    await clb.answer(
-        text=WELCOME_MESSAGE,
-        reply_markup=builder.as_markup()
-    )
+    try:
+        await clb.bot.edit_message_reply_markup(
+            chat_id=clb.message.chat.id,
+            message_id=clb.message.message_id,
+            reply_markup=builder.as_markup()
+        )
+    except TelegramBadRequest as ex:
+        await clb.answer(
+            text=WELCOME_MESSAGE,
+            reply_markup=builder.as_markup()
+        )
