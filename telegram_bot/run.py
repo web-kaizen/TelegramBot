@@ -6,7 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-from tg_services import start, main_menu, start_dialogue, select_model, help, quit_dialogue, free_mode, account
+from tg_services import start, main_menu, start_dialogue, select_model, help, quit_dialogue, free_mode
 
 token: str = os.environ.get('API_TOKEN')
 bot = Bot(token=token)
@@ -22,7 +22,6 @@ async def main() -> None:
         help.router,
         quit_dialogue.router,
         free_mode.router,
-        account.router
     )
     await dp.start_polling(bot, skip_updates=True)
 
