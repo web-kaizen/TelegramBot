@@ -1,6 +1,6 @@
 import inspect
-import json
-
+from django.core.cache import cache
+from core.settings import CACHE_DEFAULT_TTL
 import requests
 from requests import JSONDecodeError
 from .Logger import Logger
@@ -9,7 +9,7 @@ from .Methods import Methods
 
 
 class Route(Methods):
-    def __init__(self, need_execute_local=False, *args, **kwargs):
+    def __init__(self, need_execute_local=False, use_cache=False, *args, **kwargs):
         self._APP_ID = APP_ID
         self._THIRD_PARTY_APP_URL = THIRD_PARTY_APP_URL
         self._method: str | None = None
@@ -22,6 +22,7 @@ class Route(Methods):
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
 
         self.__need_execute_local = need_execute_local
+        self._use_cache: bool = use_cache
         self._logger = Logger()
         if self.__need_execute_local:
             request = requests.Request(
@@ -124,12 +125,16 @@ class Route(Methods):
         return response
 
     def send(self) -> tuple:
-        response = requests.request(
-            method=self.get_method(),
-            url=self.get_url(),
-            json=self.get_request(),
-            headers=self.get_headers()
-        )
+        response = cache.get(key=f"core_{self.__class__.__name__}_response") if self._use_cache else None
+        if not response:
+            response = requests.request(
+                method=self.get_method(),
+                url=self.get_url(),
+                json=self.get_request(),
+                headers=self.get_headers()
+            )
+            if self._use_cache:
+                cache.set(key=f"core_{self.__class__.__name__}_response", value=response, timeout=CACHE_DEFAULT_TTL)
         try:
             response_body = response.json()
         except JSONDecodeError as ex:
