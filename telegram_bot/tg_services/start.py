@@ -1,6 +1,5 @@
 import os, django, requests
-from typing import Any
-
+from typing import Any, Coroutine
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
@@ -34,7 +33,7 @@ async def log_user(clb: CallbackQuery, user: User, login_status_options: dict, t
 
 
 @router.message(Command("start"))
-async def start(clb: CallbackQuery):
+async def start(clb: CallbackQuery) -> Coroutine[Any, Any, None]:
     tg_user_id = clb.from_user.id
     register_status_options = {
         200: Login.Login,
