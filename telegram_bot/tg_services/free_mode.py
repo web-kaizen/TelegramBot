@@ -55,8 +55,11 @@ async def free_mode(msg: Message):
     message_data = message.get_response()
 
     quit_button = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Новый диалог")]],
-        resize_keyboard=True
+        keyboard=[
+            [KeyboardButton(text="Продолжить диалог")],
+            [KeyboardButton(text="Новый диалог")],
+            ],
+        resize_keyboard=True,
     )
 
     message_create_result = MESSAGE_CREATE_OPTIONS[message._status_code]
