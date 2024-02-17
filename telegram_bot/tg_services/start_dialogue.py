@@ -18,15 +18,13 @@ DIALOGUE_CREATE_OPTIONS: dict = {
 
 async def get_cached_data(user_id, clb=None) -> (str, int):
     cached_user = cache.get(key=f"telegram_bot_{user_id}")
-    print(cached_user)
-    dialogue_cached = cache.get(key=f"dialogue_{user_id}", default={"id": 0, "bot_id": 1})
-
+    dialogue_cached = cache.get(key=f"dialogue_{user_id}", default={"id": 1, "bot_id": 1})
     if not cached_user:
         await start(clb=clb)
         cached_user = cache.get(key=f"telegram_bot_{user_id}")
 
     if not dialogue_cached:
-        await start_dialogue()
+        await start_dialogue()  # Пока бессмысленно, т.к. default в cache.get стоит
 
     token = cached_user['token']
     dialogue_id = dialogue_cached["id"]
@@ -62,7 +60,10 @@ async def start_dialogue(clb: CallbackQuery):
 
     elif type(dialogue_create_result) is str:
         await clb.message.answer(text=dialogue_create_result)
-        return await start(clb=clb)
+        if dialogue._status_code == 401:
+            cache.delete(key=f"telegram_bot_{tg_user_id}")
+        await start(clb=clb)
+        await start_dialogue(clb=clb)
 
 
 
