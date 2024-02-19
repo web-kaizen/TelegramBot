@@ -1,13 +1,11 @@
-import random, string, os, django
-from aiogram import Bot, Dispatcher, Router, F, types
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
+from aiogram import Router, F
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from itertools import groupby
 from operator import itemgetter
-from telegram_bot.tg_services.assets import HELP_MESSAGE, WELCOME_MESSAGE
+from telegram_bot.tg_services.assets import HELP_MESSAGE
 
-from services import Register, Login, BotList, BotDetail, DialogueList
+from services import BotList
 
 router = Router()
 
@@ -39,4 +37,3 @@ async def help(callback: CallbackQuery):
         reply_markup=builder.as_markup()
     )
     await select_option_message.delete()
-
