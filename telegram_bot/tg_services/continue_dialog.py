@@ -1,7 +1,6 @@
 import asyncio
 from itertools import groupby
 from operator import itemgetter
-
 from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder
