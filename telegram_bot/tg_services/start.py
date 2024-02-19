@@ -1,4 +1,4 @@
-import os, django, requests
+import requests
 from typing import Any, Coroutine
 from aiogram import Router
 from aiogram.filters import Command
@@ -68,5 +68,3 @@ async def start(clb: CallbackQuery) -> Coroutine[Any, Any, None]:
             await log_user(clb=clb, user=user, login_status_options=login_status_options, tg_user_id=tg_user_id)
 
     return await main_menu(clb)
-
-
