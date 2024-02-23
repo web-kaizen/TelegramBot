@@ -1,8 +1,6 @@
 import inspect
-from typing import Any
 from django.core.cache import cache
 from core.settings import CACHE_DEFAULT_TTL
-from django.core.management.commands.runserver import Command
 import requests
 from requests import JSONDecodeError
 from .Logger import Logger
@@ -23,9 +21,10 @@ class Route(Methods):
         self._status_code: int | None = None
         self._not_allowed_headers = ('Connection', 'Keep-Alive', "Content-Length", "Transfer-Encoding", "Content-Encoding")
 
+        self.__need_execute_local = need_execute_local
         self._use_cache: bool = use_cache
         self._logger = Logger()
-        if need_execute_local:
+        if self.__need_execute_local:
             request = requests.Request(
                 method=self.get_method(),
                 url=f"{self._THIRD_PARTY_APP_URL}{self._APP_ID}{self.get_path()}",
@@ -40,8 +39,15 @@ class Route(Methods):
             getattr(self, self.get_method().lower())(request)
 
     def request_setter(self, request, *args, **kwargs):
-        self._dialogue_id = kwargs.get("dialogue_id")
-        self._bot_id = kwargs.get("bot_id")
+        '''
+        Этот код проверяет, присутствует ли ключ "dialogue_id" в словаре kwargs. Если ключ есть, то присваивает соответствующее значение переменной self._dialogue_id.
+        Если же его нету, то он использует свой self._dialogue_id
+        '''
+        if "dialogue_id" in kwargs.keys():
+            self._dialogue_id = kwargs.get("dialogue_id")
+        if "bot_id" in kwargs.keys():
+            self._bot_id = kwargs.get("bot_id")
+
         self.__request_headers = dict(request.headers)
         self.__request_headers["Content-Type"] = "application/json"
         request.headers = self.__request_headers

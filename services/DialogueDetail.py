@@ -3,10 +3,10 @@ from rest_framework.views import APIView
 
 from services.CustomRoute import CustomRoute
 
+
 class DialogueDetail(Route, APIView):
-    def __init__(self, method=None, body: dict = None, headers: dict = {}, token=None, need_execute_local=False):
-        self.method: str = method
-        self._body: dict = body
+    def __init__(self, data: dict = None, headers: dict = {}, token=None, need_execute_local=False):
+        self.data: dict = data
         self.headers: dict = headers
         self.headers["Authorization"] = f"Bearer {token}"
         super().__init__(need_execute_local)

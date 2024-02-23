@@ -1,22 +1,29 @@
 import os, django, asyncio, logging
-from aiogram import Dispatcher, Bot, F, Router
-from tg_services import start, main_menu
+from aiogram import Dispatcher, Bot
 
 ''' django setup '''
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-router = Router()
+from tg_services import start, main_menu, start_dialogue, select_model, help, quit_dialogue, free_mode, continue_dialog
+
+token: str = os.environ.get('API_TOKEN')
+bot = Bot(token=token)
+dp = Dispatcher()
 
 
 async def main() -> None:
-    token: str = os.environ.get('API_TOKEN')
-    bot = Bot(token=token, parse_mode='HTML')
-    dp = Dispatcher()
-    dp.include_router(router=router)
-    dp.message.register(start.start)
-    dp.message.register(main_menu.main_menu)
+    dp.include_routers(
+        start.router,
+        main_menu.router,
+        start_dialogue.router,
+        select_model.router,
+        help.router,
+        quit_dialogue.router,
+        continue_dialog.router,
+        free_mode.router,
+    )
     await dp.start_polling(bot, skip_updates=True)
 
 

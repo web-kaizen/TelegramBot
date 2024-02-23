@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from core.Route import Route
+from services.CustomRoute import CustomRoute
 
 
-class MessageList(Route, APIView):
+class MessageList(CustomRoute, APIView):
 
     def get_path(self) -> str:
         return f"/dialogues/{self._dialogue_id}/messages"

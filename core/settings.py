@@ -14,10 +14,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 import environ
 
-load_dotenv()
 
 env = environ.Env(
     DEBUG=bool,
@@ -110,6 +108,11 @@ TEMPLATES = [
     },
 ]
 
+dbHost: str = ""
+if os.getenv('DOCKER_CONTAINER'):
+    dbHost = env("POSTGRES_DB_HOST")
+else:
+    dbHost = "localhost"
 
 # Database
 DATABASES = {
@@ -118,7 +121,7 @@ DATABASES = {
         'NAME': env("POSTGRES_DB_NAME"),
         'USER': env("POSTGRES_DB_USER"),
         'PASSWORD': env("POSTGRES_DB_PASSWORD"),
-        'HOST': env("POSTGRES_DB_HOST"),
+        'HOST': dbHost,
         'PORT': env("POSTGRES_DB_PORT"),
     }
 }
