@@ -1,5 +1,8 @@
 import os, django, asyncio, logging
 from aiogram import Dispatcher, Bot
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 ''' django setup '''
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
