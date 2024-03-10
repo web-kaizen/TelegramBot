@@ -11,6 +11,6 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(UserStatistic)
 class UserStatisticAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'type', 'name', 'current_dialogues', 'max_dialogues']
-    list_filter = ("id", "user", "type", "name")
-    search_fields = ('user', "type", 'name')
+    list_display = ['id', 'user', 'model_id', 'name', 'current_dialogues', 'max_dialogues']
+    list_filter = ("id", "user", "model_id", "name")
+    search_fields = ('user', "model_id", 'name')
