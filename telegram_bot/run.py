@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-from tg_services import start, main_menu, start_dialogue, select_model, help, quit_dialogue, free_mode, continue_dialog
+from tg_services import start, main_menu, start_dialogue, select_model, help, quit_dialogue, free_mode, continue_dialog, account
 
 token: str = os.environ.get('API_TOKEN')
 bot = Bot(token=token)
@@ -23,6 +23,7 @@ async def main() -> None:
         start_dialogue.router,
         select_model.router,
         help.router,
+        account.router,
         quit_dialogue.router,
         continue_dialog.router,
         free_mode.router,
