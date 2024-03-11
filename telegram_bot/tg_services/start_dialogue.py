@@ -1,8 +1,11 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from django.core.cache import cache
+from django.db.models import Q
+
 from .start import start
 from services import DialogueCreate
+from telegram_bot.models import UserStatistic
 
 router = Router()
 
@@ -47,12 +50,14 @@ async def start_dialogue(clb: CallbackQuery):
     dialogue = DialogueCreate.DialogueCreate(need_execute_local=True, token=token, data=data)
     dialogue_data = dialogue.get_response()
 
+    await increment_dialogue_to_statistic(user_id=tg_user_id, selected_model=selected_model)
+
     dialogue_create_result = DIALOGUE_CREATE_OPTIONS[dialogue._status_code]
     if dialogue_create_result is object:
         cache.set(
             key=f"dialogue_{tg_user_id}",
             value=dialogue_data,
-            timeout=60*60*24*5  # 5 день
+            timeout=60*60*24*5  # 5 дней
         )
 
         await clb.message.answer("Введите свой запрос!👨‍💻")
@@ -66,4 +71,8 @@ async def start_dialogue(clb: CallbackQuery):
         await start_dialogue(clb=clb)
 
 
+async def increment_dialogue_to_statistic(user_id: int, selected_model: int):
+    userStats = UserStatistic.objects.filter(Q(user__user_id=user_id) & Q(model_id=selected_model)).first()
+    userStats.current_dialogues += 1
+    userStats.save()
 
