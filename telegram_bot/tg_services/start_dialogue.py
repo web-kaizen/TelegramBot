@@ -42,6 +42,11 @@ async def start_dialogue(clb: CallbackQuery):
     selected_model = int(clb.data.split(":")[1])
     token, dialogue_id, _ = await get_cached_data(user_id=tg_user_id, clb=clb)
 
+    user_stats = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=selected_model)).first()
+    if user_stats.current_dialogues >= user_stats.max_dialogues:
+        await clb.message.answer("Вы достигли максимального количества диалогов с этой моделью.")
+        return
+
     data = {
         "name": f"Dialogue No.{dialogue_id + 1}",
         "bot_id": selected_model
