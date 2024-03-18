@@ -15,7 +15,7 @@ class User(models.Model):
     user_core_id = models.BigIntegerField(blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=255)
-    balance = models.FloatField(blank=True, null=True)
+    balance = models.FloatField(blank=True, default=0.0)
     tariff = models.CharField(max_length=120, choices=TARIFF_CHOICES, default="Basic")
     created_at = models.DateTimeField(auto_now_add=True)
 
