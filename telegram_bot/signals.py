@@ -11,8 +11,8 @@ def set_max_dialogues(sender, instance, *args, **kwargs):
             'Basic': 50,
             'Professional': 300,
             'Premium': 500,
-            'Стартап': 750,
-            'Startup': 3000
+            'Startup': 750,
+            'Corporate': 3000
         },
         'Gpt-3.5 16K': {
             'Basic': 10,

@@ -23,7 +23,7 @@ async def account(callback: CallbackQuery):
         f''' 👨‍💻 Добро пожаловать, BotXchat
 ├ Ваш юзернейм: BotXchatBot
 ├ Ваш ID: {user.user_id}
-├ Ваш баланс: {user.balance}
+├ Ваш баланс: {user.balance if user.balance else 0}
 └ Язык бота: Русский '''
 
     # dialogues info
