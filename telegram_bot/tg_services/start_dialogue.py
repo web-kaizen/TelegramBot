@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.db.models import Q
 
 from .start import start
+from .main_menu import main_menu
 from services import DialogueCreate
 from telegram_bot.models import UserStatistic
 
@@ -41,6 +42,22 @@ async def start_dialogue(clb: CallbackQuery):
     select_option_message = clb.message
     selected_model = int(clb.data.split(":")[1])
     token, dialogue_id, _ = await get_cached_data(user_id=tg_user_id, clb=clb)
+
+    user_stats = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=selected_model)).first()
+    if user_stats.current_dialogues >= user_stats.max_dialogues:
+        second_model_id = 2 if selected_model == 1 else 1
+        second_model_stats = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=second_model_id)).first()
+        if second_model_stats.current_dialogues < second_model_stats.max_dialogues:
+            selected_model = second_model_id
+            await clb.message.answer(
+                f'Вы достигли максимального количества диалогов с моделью: {user_stats.name}. Создан диалог с моделью: {second_model_stats.name}'
+            )
+        else:
+            await clb.message.answer(
+                f'Вы достигли максимального количества диалогов с моделями: {user_stats.name}, {second_model_stats.name}'
+            )
+            await main_menu(clb)
+            return
 
     data = {
         "name": f"Dialogue No.{dialogue_id + 1}",
