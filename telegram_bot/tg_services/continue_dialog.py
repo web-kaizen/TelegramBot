@@ -5,9 +5,12 @@ from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.core.cache import cache
+from django.db.models import Q
 from .start import start
+from .main_menu import main_menu
 from services import DialogueOptionalUpdate, BotList
 from .start_dialogue import get_cached_data
+from telegram_bot.models import UserStatistic
 
 router = Router()
 
@@ -30,6 +33,34 @@ async def change_dialogue_options(clb):
     select_option_message = clb.message
     selected_model = int(clb.data.split(":")[1])
     token, dialogue_id, model_id = await get_cached_data(user_id=tg_user_id)
+    bot_list = BotList.BotList(need_execute_local=True, use_cache=False).get_response()
+    user_stats = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=selected_model)).first()
+
+    if user_stats.current_dialogues >= user_stats.max_dialogues:
+        available_bots = []
+        for bot in bot_list:
+            user_stats2 = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=bot['id'])).first()
+            if user_stats2.current_dialogues < user_stats2.max_dialogues:
+                available_bots.append(bot)
+
+        if not available_bots:
+            await clb.message.answer("Вы достигли максимального количества диалогов со всеми моделями")
+            await main_menu(clb)
+            return
+
+        keyboard_builder = InlineKeyboardBuilder()
+        for bot in available_bots:
+            keyboard_builder.add(
+                InlineKeyboardButton(text=bot["model_name"], callback_data=f"continue_dialog:{bot['id']}"))
+
+        keyboard_builder.row(InlineKeyboardButton(text="<- BACK", callback_data='main_menu'))
+
+        await clb.message.answer(
+            text=f"Вы достигли максимального количества диалогов с моделью: {user_stats.name}"
+                 "Вам доступны следующие модели, поскольку для них еще не достигнут лимит на количество диалогов."
+                 "Выберите новую модель с которой хотите продолжить ваш диалог.",
+            reply_markup=keyboard_builder.as_markup()
+        )
 
     data = {
         "bot_id": selected_model
