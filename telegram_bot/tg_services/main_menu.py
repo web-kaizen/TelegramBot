@@ -16,9 +16,10 @@ async def main_menu(clb: CallbackQuery):
     builder.row(InlineKeyboardButton(text='Помощь', callback_data='help'))
 
     try:
-        await clb.bot.edit_message_reply_markup(
+        await clb.bot.edit_message_text(
             chat_id=clb.message.chat.id,
             message_id=clb.message.message_id,
+            text=WELCOME_MESSAGE,
             reply_markup=builder.as_markup()
         )
     except Exception as ex:
