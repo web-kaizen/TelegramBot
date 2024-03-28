@@ -30,3 +30,4 @@ async def quit_dialog(msg: Message, error=False):
         text=text,
         reply_markup=builder.as_markup(),
         )
+    await msg.delete()
