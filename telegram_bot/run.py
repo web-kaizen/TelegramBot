@@ -32,7 +32,17 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
+    log_dir = os.path.join(os.path.dirname(__file__), 'TelegramLogs')
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
+    file_handler = logging.FileHandler(os.path.join(log_dir, 'logs_tg.log'))
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s  - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
     try:
         asyncio.run(main())
     except KeyboardInterrupt as ex:
