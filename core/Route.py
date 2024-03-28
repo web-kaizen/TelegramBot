@@ -6,6 +6,9 @@ from requests import JSONDecodeError
 from .Logger import Logger
 from .settings import APP_ID, THIRD_PARTY_APP_URL, LOCALHOST, BASE_URI
 from .Methods import Methods
+import logging
+
+logger = logging.getLogger('logger')
 
 
 class Route(Methods):
@@ -122,6 +125,11 @@ class Route(Methods):
         return response
 
     def on_error(self, response: dict) -> dict:
+        if self._status_code is not None:
+            logger.error(
+                f"{self.__class__.__name__} - {self.get_method()} - {self.get_path()} - {self.get_response()} - {self._status_code}"
+            )
+
         return response
 
     def send(self) -> tuple:
