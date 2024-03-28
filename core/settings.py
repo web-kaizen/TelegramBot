@@ -10,12 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-
-
 import os
 from pathlib import Path
 import environ
-
+import logging
 
 env = environ.Env(
     DEBUG=bool,
@@ -91,7 +89,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
@@ -137,7 +134,6 @@ INTERNAL_IPS = env("INTERNAL_IPS").split(", ")
 APP_ID = env('APP_ID')
 THIRD_PARTY_APP_URL = env('THIRD_PARTY_APP_URL')
 
-
 # Redis
 REDIS_HOST = env('REDIS_HOST')
 REDIS_PORT = env('REDIS_PORT')
@@ -150,7 +146,6 @@ CACHES = {
         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -169,7 +164,36 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+# logging file system
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'main_formatter': {
+            'format': '{asctime} - {levelname} - {module} - {filename} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'main_formatter'
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'formatter': 'main_formatter',
+            'filename': f'{BASE_DIR}/core/logs.log'
+        }
+    },
+    'loggers': {
+        'logger': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True
+        }
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -181,7 +205,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -197,14 +220,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 """ ASGI SETTINGS DJANGO"""
 import os
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 application = get_asgi_application()
-
 
 """ WSGI SETTINGS DJANGO """
 from django.core.wsgi import get_wsgi_application
