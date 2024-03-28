@@ -40,7 +40,7 @@ async def change_dialogue_options(clb):
         available_bots = []
         for bot in bot_list:
             user_stats2 = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=bot['id'])).first()
-            if user_stats2.current_dialogues < user_stats2.max_dialogues:
+            if user_stats2.current_dialogues < user_stats2.max_dialogues and bot['status_code'] == 'active':
                 available_bots.append(bot)
 
         if not available_bots:
@@ -56,38 +56,41 @@ async def change_dialogue_options(clb):
         keyboard_builder.row(InlineKeyboardButton(text="<- BACK", callback_data='main_menu'))
 
         await clb.message.answer(
-            text=f"Вы достигли максимального количества диалогов с моделью: {user_stats.name}"
-                 "Вам доступны следующие модели, поскольку для них еще не достигнут лимит на количество диалогов."
-                 "Выберите новую модель с которой хотите продолжить ваш диалог.",
+            text=f"Достигнуто максимальное количество диалогов с {user_stats.name}.\n"
+                "Вам доступны следующие модели, так как для них еще не исчерпан лимит на диалоги.\n"
+                "Выберите новую модель с которой хотите продолжить ваш диалог.",
             reply_markup=keyboard_builder.as_markup()
         )
-
-    data = {
-        "bot_id": selected_model
-    }
-    dialogue_update = DialogueOptionalUpdate.DialogueOptionalUpdate(dialogue_id=dialogue_id, data=data, token=token, need_execute_local=True)
-    dialogue_update_data = dialogue_update.get_response()  # Возвращает {'bot_id': 2}
-
-    dialogue_update_result = DIALOGUE_OPTIONAL_UPDATE_OPTIONS[dialogue_update._status_code]
-    if dialogue_update_result is object:
-        successful_data = await clb.message.answer("Модель успешно изменена!")
-        await asyncio.sleep(0.5)
-        await successful_data.delete()
-
-        dialogue_update_data["id"] = dialogue_id
-        dialogue_update_data["name"] = f"Dialogue No.{dialogue_id}"
-        cache.set(
-            key=f"dialogue_{tg_user_id}",
-            value=dialogue_update_data,
-            timeout=60 * 60 * 24 * 5  # 5 день
-        )
-
-        await clb.message.answer("Введите свой запрос!👨‍💻")
         await select_option_message.delete()
+    else:
+        data = {
+            "bot_id": selected_model
+        }
+        dialogue_update = DialogueOptionalUpdate.DialogueOptionalUpdate(dialogue_id=dialogue_id, data=data, token=token, need_execute_local=True)
+        dialogue_update_data = dialogue_update.get_response()  # Возвращает {'bot_id': 2}
 
-    elif type(dialogue_update_result) is str:
-        await clb.message.answer(text=dialogue_update_result)
-        return await start(clb=clb)
+        await increment_dialogue_to_statistic(user_id=tg_user_id, selected_model=selected_model)
+
+        dialogue_update_result = DIALOGUE_OPTIONAL_UPDATE_OPTIONS[dialogue_update._status_code]
+        if dialogue_update_result is object:
+            successful_data = await clb.message.answer("Модель успешно изменена!")
+            await asyncio.sleep(0.5)
+            await successful_data.delete()
+
+            dialogue_update_data["id"] = dialogue_id
+            dialogue_update_data["name"] = f"Dialogue No.{dialogue_id}"
+            cache.set(
+                key=f"dialogue_{tg_user_id}",
+                value=dialogue_update_data,
+                timeout=60 * 60 * 24 * 5  # 5 день
+            )
+
+            await clb.message.answer("Введите свой запрос!👨‍💻")
+            await select_option_message.delete()
+
+        elif type(dialogue_update_result) is str:
+            await clb.message.answer(text=dialogue_update_result)
+            return await start(clb=clb)
 
 
 @router.message(F.text.lower() == "продолжить диалог")
@@ -95,6 +98,7 @@ async def continue_dialog(msg: Message):
     tg_user_id = msg.from_user.id
     token, dialogue_id, model_id = await get_cached_data(user_id=tg_user_id)
     bot_list_response = BotList.BotList(need_execute_local=True, use_cache=False).get_response()
+    user_stats = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=model_id)).first()
 
     '''
     Группируем данные по авторам 
@@ -104,33 +108,55 @@ async def continue_dialog(msg: Message):
         [3, 'Gpt-4 8K']
     ]}
     '''
-    bot_list_result = {key: [[item["id"], item["model_name"]]
-                             for item in group
-                             if item['status_code'] == "active"
-                             and
-                             item["id"] != model_id]
-                       for
-                       key, group in
-                       groupby(bot_list_response, key=itemgetter("author"))}
 
-    builder = InlineKeyboardBuilder()
+    available_bots = []
+    for bot in bot_list_response:
+        user_stats2 = UserStatistic.objects.filter(Q(user__user_id=tg_user_id) & Q(model_id=bot['id'])).first()
+        if bot['id'] != model_id and user_stats2.current_dialogues < user_stats2.max_dialogues and bot['status_code'] == 'active':
+            available_bots.append(bot)
 
-    for author, models in bot_list_result.items():
-        for model_id, model_name in models:
-            print(model_id, model_name)
-            builder.add(InlineKeyboardButton(text=model_name, callback_data=f"continue_dialog:{model_id}"))
+    if not available_bots:
+        keyboard_builder = InlineKeyboardBuilder()
+        keyboard_builder.row(InlineKeyboardButton(text='Отменить', callback_data="cancel_changes"))
+        keyboard_builder.row(InlineKeyboardButton(text="<- BACK", callback_data='main_menu'))
+        await msg.answer(
+            text=f"В других доступных моделях исчерпан лимит на диалоги.\n"
+                 f"Вы можете продолжать общение только с текущей моделью: {user_stats.name}\n"
+                 "'Отменить' - чтобы вернуться к боту.\n"
+                 "'<- BACK' - чтобы вернуться в главное меню.",
+            reply_markup=keyboard_builder.as_markup()
+        )
+        await msg.delete()
+    else:
+        bot_list_result = {key: [[item["id"], item["model_name"]]
+                                 for item in group
+                                 if item['status_code'] == "active"
+                                 and
+                                 item["id"] != model_id]
+                           for
+                           key, group in
+                           groupby(bot_list_response, key=itemgetter("author"))}
 
-    builder.row(InlineKeyboardButton(text='Отменить', callback_data="cancel_changes"))
+        builder = InlineKeyboardBuilder()
 
-    ended_dialogue_message = await msg.answer(text="Понял! ✅", reply_markup=ReplyKeyboardRemove())  # удаляем кастомную клавиатуру
-    await asyncio.sleep(0.5)
-    await ended_dialogue_message.delete()
+        for author, models in bot_list_result.items():
+            for model_id, model_name in models:
+                print(model_id, model_name)
+                builder.add(InlineKeyboardButton(text=model_name, callback_data=f"continue_dialog:{model_id}"))
 
-    await msg.answer(
-        text="Выберите новую модель с которой хотите продолжить ваш диалог."
-             "Все данные будут сохранены, поэтому выбранная модель будет 'помнить' весь диалог.",
-        reply_markup=builder.as_markup()
-    )
+        builder.row(InlineKeyboardButton(text='Отменить', callback_data="cancel_changes"))
+
+        ended_dialogue_message = await msg.answer(text="Понял! ✅", reply_markup=ReplyKeyboardRemove())  # удаляем кастомную клавиатуру
+        await asyncio.sleep(0.5)
+        await ended_dialogue_message.delete()
+
+        await msg.answer(
+            text="Выберите новую модель с которой хотите продолжить ваш диалог."
+                 "Все данные будут сохранены, поэтому выбранная модель будет 'помнить' весь диалог.",
+            reply_markup=builder.as_markup()
+        )
+        await msg.delete()
+
 
 
 @router.callback_query(F.data == "cancel_changes")
@@ -138,3 +164,9 @@ async def cancel_changes(clb: CallbackQuery):
     select_option_message = clb.message
     await clb.message.answer("Можете продолжать общение! ✅")
     await select_option_message.delete()
+
+
+async def increment_dialogue_to_statistic(user_id: int, selected_model: int):
+    userStats = UserStatistic.objects.filter(Q(user__user_id=user_id) & Q(model_id=selected_model)).first()
+    userStats.current_dialogues += 1
+    userStats.save()
